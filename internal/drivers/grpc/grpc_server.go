@@ -1,7 +1,13 @@
 package grpc
 
 import (
+	"context"
+	"log/slog"
+
+	"github.com/brianvoe/gofakeit"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type server struct {
@@ -15,4 +21,42 @@ func NewServer() *server {
 	return &server{
 		UnimplementedUserV1Server: desc.UnimplementedUserV1Server{},
 	}
+}
+
+// implementation of UserV1Server
+// GetUser implements the GetUser method of the UserV1Server interface.
+func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
+	slog.Info("GetUser", "request", req.String())
+	defer ctx.Done()
+	return &desc.GetResponse{
+		Id:        gofakeit.Int64(),
+		Name:      gofakeit.Name(),
+		Email:     gofakeit.Email(),
+		Role:      desc.Role_user,
+		CreatedAt: timestamppb.New(gofakeit.Date()),
+		UpdatedAt: timestamppb.New(gofakeit.Date()),
+	}, nil
+}
+
+// CreateUser implements the CreateUser method of the UserV1Server interface.
+func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+	slog.Info("CreateUser", "request", req.String())
+	defer ctx.Done()
+	return &desc.CreateResponse{
+		Id: gofakeit.Int64(),
+	}, nil
+}
+
+// UpdateUser implements the UpdateUser method of the UserV1Server interface.
+func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+	slog.Info("UpdateUser", "request", req.String())
+	defer ctx.Done()
+	return &emptypb.Empty{}, nil
+}
+
+// DeleteUser implements the DeleteUser method of the UserV1Server interface.
+func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+	slog.Info("DeleteUser", "request", req.String())
+	defer ctx.Done()
+	return &emptypb.Empty{}, nil
 }
