@@ -31,7 +31,8 @@
 				"oderwat.indent-rainbow",
 				"rangav.vscode-thunder-client",
 				"gruntfuggly.todo-tree",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"zxh404.vscode-proto3"
 			]
 		}
 	},
@@ -39,7 +40,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt update && make install-golangci-lint"
+	"postCreateCommand": "sudo apt update && make install-golangci-lint && sudo apt install -y protobuf-compiler && make install-deps"
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
