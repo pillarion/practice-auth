@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net"
 
-	mygrpc "github.com/pillarion/practice-auth/internal/drivers/grpc"
+	dgrpc "github.com/pillarion/practice-auth/internal/drivers/grpc"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
 
 	"google.golang.org/grpc"
@@ -22,7 +22,7 @@ func main() {
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterUserV1Server(s, mygrpc.NewServer())
+	desc.RegisterUserV1Server(s, dgrpc.NewServer())
 
 	slog.Info("server listening at", "address", lis.Addr().String())
 
