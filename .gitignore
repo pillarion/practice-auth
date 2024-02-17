@@ -80,3 +80,4 @@ Temporary Items
 
 /bin/
 .devcontainer/
+.env

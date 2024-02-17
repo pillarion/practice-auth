@@ -28,6 +28,5 @@ COPY --from=builder /opt/app/bin/auth-service /go/bin/auth-service
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 ENV TZ Europe/Moscow
-EXPOSE 50051
 USER app-user:app-user
 ENTRYPOINT ["go/bin/auth-service"]

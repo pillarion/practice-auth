@@ -15,7 +15,7 @@ import (
 const grpcPort = 50051
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", grpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
 	if err != nil {
 		slog.Warn("failed to listen", "Error", err)
 	}
