@@ -11,6 +11,7 @@ env:
   IMAGE_NAME: "auth-service"
   CONTAINER_NAME: "auth-service-container"
   REGISTRY_USER: "token"
+  TAG_NAME: "latest"
 
 jobs:
   build-and-test:
@@ -74,7 +75,6 @@ jobs:
         run: docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
       - name: Build and Push Docker Image
         run: |
-          TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker buildx create --use
           docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
 
@@ -98,11 +98,19 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,REGISTRY_USER
+          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,REGISTRY_USER,TAG_NAME
           script: |
             # Set up variables
-            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            cd 
+            rm .env
+
+            echo "IMAGE_NAME=$IMAGE_NAME" >> .env
+            echo "REGISTRY=$REGISTRY" >> .env
+            echo "IMAGE_NAME=$IMAGE_NAME" >> .env
+            echo "CONTAINER_NAME=$CONTAINER_NAME" >> .env
+            echo "TAG_NAME=$TAG_NAME" >> .env
+
+            echo .secret/.env >> .env
+
             # Login into Selectel Registry
             sudo docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
             
