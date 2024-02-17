@@ -101,7 +101,7 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,REGISTRY_USER,TAG_NAME
           script: |
             # Set up variables
-            rm .env
+            echo "" > .env
 
             echo "IMAGE_NAME=$IMAGE_NAME" >> .env
             echo "REGISTRY=$REGISTRY" >> .env
