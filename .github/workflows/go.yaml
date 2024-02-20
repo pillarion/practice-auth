@@ -76,11 +76,7 @@ jobs:
       - name: Build and Push Docker Image APP
         run: |
           docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
-      - name: Build and Push Docker Image Migrator
-        run: |
-          docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/Migrator:$TAG_NAME -f Dockerfile.Migrator . 
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
 
   deploy-image:
     runs-on: ubuntu-latest
