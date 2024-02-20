@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net"
 
-	dgrpc "github.com/pillarion/practice-auth/internal/drivers/grpc"
+	dgrpc "github.com/pillarion/practice-auth/internal/adapter/controller/grpc"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
 
 	"google.golang.org/grpc"
