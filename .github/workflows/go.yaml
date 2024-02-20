@@ -108,6 +108,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,REGISTRY_USER,TAG_NAME
           script: |
+            
+            # rm files
+            rm -rf migrations
+            rm -f Dockerfile.Migrator
+            rm -f docker-compose.yaml
+            
             # Set up variables
             echo "" > .env
 
@@ -117,7 +123,7 @@ jobs:
             echo "CONTAINER_NAME=$CONTAINER_NAME" >> .env
             echo "TAG_NAME=$TAG_NAME" >> .env
 
-            cat .secret/.env >> .env
+            cat .secrets/.env >> .env
 
             # Login into Selectel Registry
             sudo docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
@@ -130,8 +136,4 @@ jobs:
             # Remove old images
             sudo docker rmi $REGISTRY/$IMAGE_NAME:$GITHUB_SHA
             sudo docker rmi $REGISTRY/$IMAGE_NAME:latest
-
-            # rm files
-            rm -rf migrations
-            rm -f Dockerfile.Migrator
             
