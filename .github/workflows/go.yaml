@@ -132,8 +132,3 @@ jobs:
             sudo docker compose down
             
             sudo docker compose up -d
-
-            # Remove old images
-            sudo docker rmi $REGISTRY/$IMAGE_NAME:$GITHUB_SHA
-            sudo docker rmi $REGISTRY/$IMAGE_NAME:latest
-            
