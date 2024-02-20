@@ -9,6 +9,9 @@ services:
     networks:
       - dmz
       - ins
+    depends_on:
+      - pg
+      - migrator
   
   pg:
     image: postgres:16-alpine3.19
@@ -26,6 +29,20 @@ services:
     restart: unless-stopped
     networks:
       - ins
+
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.Migrator
+      no_cache: true
+    env_file: .env
+    volumes:
+        - ./migrations:/go/bin/migrations
+    restart: on-failure
+    networks:
+      - ins
+    depends_on:
+      - pg
 
 
 volumes:

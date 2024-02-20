@@ -73,10 +73,14 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker Registry
         run: docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
-      - name: Build and Push Docker Image
+      - name: Build and Push Docker Image APP
         run: |
           docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
+      - name: Build and Push Docker Image Migrator
+        run: |
+          docker buildx create --use
+          docker buildx build --no-cache --push --tag $REGISTRY/Migrator:$TAG_NAME -f Dockerfile.Migrator . 
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -91,6 +95,14 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "docker-compose.yaml"
+          target: .
+      - name: Copy migrations
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "migrations"
           target: .
       - name: Deploy to Selectel Cloud via SSH action
         uses: appleboy/ssh-action@v1.0.0
