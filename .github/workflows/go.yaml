@@ -109,11 +109,6 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,REGISTRY_USER,TAG_NAME
           script: |
             
-            # rm files
-            rm -rf migrations
-            rm -f Dockerfile.Migrator
-            rm -f docker-compose.yaml
-            
             # Set up variables
             echo "" > .env
 
