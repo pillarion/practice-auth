@@ -31,10 +31,7 @@ services:
       - ins
 
   migrator:
-    build:
-      context: .
-      dockerfile: Dockerfile.Migrator
-      no_cache: true
+    image: ${REGISTRY}/migrator:latest
     env_file: .env
     volumes:
         - ./migrations:/go/bin/migrations

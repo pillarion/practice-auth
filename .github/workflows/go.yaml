@@ -76,7 +76,11 @@ jobs:
       - name: Build and Push Docker Image APP
         run: |
           docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME . 
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
+      - name: Build and Push Docker Image Migrator
+        run: |
+          docker buildx create --use
+          docker buildx build --no-cache --push --tag $REGISTRY/migrator:latest -f Dockerfile.Migrator . 
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -90,7 +94,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yaml, Dockerfile.Migrator"
+          source: "docker-compose.yaml"
           target: .
       - name: Copy migrations
         uses: appleboy/scp-action@v0.1.7
