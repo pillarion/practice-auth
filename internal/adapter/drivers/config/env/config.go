@@ -17,7 +17,7 @@ const (
 	pgPortEnv  = "POSTGRES_PORT"
 )
 
-// GetConfig retrieves the configuration for the application.
+// Get retrieves the configuration for the application.
 //
 // Returns *ecfg.Config, error.
 func Get() (*ecfg.Config, error) {
