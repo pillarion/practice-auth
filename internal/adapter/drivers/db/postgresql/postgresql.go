@@ -39,7 +39,7 @@ func (p *pg) InsertUser(ctx context.Context, user *desc.User) (int64, error) {
 
 	builderInsert := sq.Insert("users").
 		PlaceholderFormat(sq.Dollar).
-		Columns("id", "name", "email", "password", "role").
+		Columns("user_id", "name", "email", "password", "role").
 		Values(user.ID, user.Name, user.Email, user.Password, user.Role).
 		Suffix("RETURNING id")
 
@@ -59,9 +59,9 @@ func (p *pg) InsertUser(ctx context.Context, user *desc.User) (int64, error) {
 
 func (p *pg) SelectUser(ctx context.Context, id int64) (*desc.User, error) {
 
-	builderSelect := sq.Select("id", "name", "email", "password", "role").
+	builderSelect := sq.Select("user_id", "name", "email", "password", "role").
 		From("users").
-		Where(sq.Eq{"id": id})
+		Where(sq.Eq{"user_id": id})
 
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
@@ -85,7 +85,7 @@ func (p *pg) UpdateUser(ctx context.Context, user *desc.User) error {
 		Set("email", user.Email).
 		Set("password", user.Password).
 		Set("role", user.Role).
-		Where(sq.Eq{"id": user.ID})
+		Where(sq.Eq{"user_id": user.ID})
 
 	query, args, err := builderUpdate.ToSql()
 	if err != nil {
@@ -104,7 +104,7 @@ func (p *pg) DeleteUser(ctx context.Context, id int64) error {
 
 	builderDelete := sq.Delete("users").
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": id})
+		Where(sq.Eq{"user_id": id})
 
 	query, args, err := builderDelete.ToSql()
 	if err != nil {
