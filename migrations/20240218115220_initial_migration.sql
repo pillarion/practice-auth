@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     role_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
@@ -8,7 +8,7 @@ CREATE TABLE roles (
 INSERT INTO roles (name) VALUES ('USER');
 INSERT INTO roles (name) VALUES ('ADMIN');
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
