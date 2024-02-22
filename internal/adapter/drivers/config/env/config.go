@@ -26,6 +26,7 @@ func GetConfig() (*ecfg.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	grpcPortInt, err := strconv.Atoi(grpcPort)
 	if err != nil {
 		return nil, err
@@ -57,12 +58,16 @@ func GetConfig() (*ecfg.Config, error) {
 	}
 
 	return &ecfg.Config{
-		PortGRPC: grpcPortInt,
-		DBuser:   pguser,
-		DBpass:   pgpass,
-		DBhost:   pghost,
-		DBport:   pgport,
-		DBname:   pgdb,
+		GRPC: ecfg.GRPC{
+			Port: grpcPortInt,
+		},
+		Database: ecfg.Database{
+			Db:   pgdb,
+			User: pguser,
+			Pass: pgpass,
+			Host: pghost,
+			Port: pgport,
+		},
 	}, nil
 }
 
