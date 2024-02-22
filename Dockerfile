@@ -28,5 +28,11 @@ COPY --from=builder /opt/app/bin/auth-service /go/bin/auth-service
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 ENV TZ Europe/Moscow
+ENV GRPC_PORT=${GRPC_PORT}
+ENV POSTGRES_DB=${POSTGRES_DB}
+ENV POSTGRES_USER=${POSTGRES_USER}
+ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+ENV POSTGRES_HOST=${POSTGRES_HOST}
+ENV POSTGRES_PORT=${POSTGRES_PORT}
 USER app-user:app-user
 ENTRYPOINT ["go/bin/auth-service"]

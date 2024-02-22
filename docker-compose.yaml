@@ -3,8 +3,10 @@ version: '3'
 services:
   app:
     image: ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+    env_file:
+      - .env
     ports:
-      - 50051:50051
+      - ${GRPC_PORT}:50051
     networks:
       - dmz
       - ins
@@ -14,6 +16,8 @@ services:
   
   pg:
     image: postgres:16-alpine3.19
+    env_file:
+      - .env
     ports:
       - 5432:5432
     volumes:
@@ -30,6 +34,8 @@ services:
 
   migrator:
     image: cr.selcloud.ru/practice/migrator:latest
+    env_file:
+      - .env
     volumes:
         - ./migrations:/go/bin/migrations
     restart: on-failure
