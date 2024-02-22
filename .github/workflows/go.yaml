@@ -75,7 +75,7 @@ jobs:
         run: docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
       - name: Build and Push Docker Image APP
         run: |
-          TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+          export TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker buildx create --use
           docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
       - name: Build and Push Docker Image Migrator
@@ -116,7 +116,7 @@ jobs:
             
             # Set up variables
             echo "" > .env
-            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+            export TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             echo "TAG_NAME=$TAG_NAME" >> .env
             echo "IMAGE_NAME=$IMAGE_NAME" >> .env
             echo "REGISTRY=$REGISTRY" >> .env
