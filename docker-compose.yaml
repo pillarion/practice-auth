@@ -31,7 +31,7 @@ services:
       - ins
 
   migrator:
-    image: ${REGISTRY}/migrator:latest
+    image: cr.selcloud.ru/practice/migrator:latest
     env_file: .env
     volumes:
         - ./migrations:/go/bin/migrations

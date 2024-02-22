@@ -81,3 +81,4 @@ Temporary Items
 /bin/
 .devcontainer/
 .env
+!.env.example
