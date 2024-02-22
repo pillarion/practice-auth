@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.GetConfig()
+	cfg, err := config.Get()
 	if err != nil {
 		slog.Warn("failed to get config", "Error", err)
 	}

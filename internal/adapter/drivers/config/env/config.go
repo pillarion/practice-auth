@@ -20,7 +20,7 @@ const (
 // GetConfig retrieves the configuration for the application.
 //
 // Returns *ecfg.Config, error.
-func GetConfig() (*ecfg.Config, error) {
+func Get() (*ecfg.Config, error) {
 
 	grpcPort, err := getEnv(rpcPortEnv)
 	if err != nil {
