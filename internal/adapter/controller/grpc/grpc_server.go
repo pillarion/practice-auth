@@ -19,8 +19,10 @@ type server struct {
 // NewServer creates a new server instance.
 //
 // No parameters. Returns a pointer to a server.
-func NewServer() *server {
-	return &server{}
+func NewServer(us user.Service) *server {
+	return &server{
+		userService: us,
+	}
 }
 
 // implementation of UserV1Server

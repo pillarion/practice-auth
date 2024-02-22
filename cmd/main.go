@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
 
 	dgrpc "github.com/pillarion/practice-auth/internal/adapter/controller/grpc"
 	config "github.com/pillarion/practice-auth/internal/adapter/drivers/config/env"
+	"github.com/pillarion/practice-auth/internal/adapter/drivers/db/postgresql"
+	"github.com/pillarion/practice-auth/internal/core/service/user"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
 
 	"google.golang.org/grpc"
@@ -14,6 +17,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	cfg, err := config.Get()
 	if err != nil {
 		slog.Warn("failed to get config", "Error", err)
@@ -23,12 +28,15 @@ func main() {
 	if err != nil {
 		slog.Warn("failed to listen", "Error", err)
 	}
-
-	slog.Info("config", "config", cfg)
+	repo, err := postgresql.New(ctx, &cfg.Database)
+	if err != nil {
+		slog.Warn("failed to create repo", "Error", err)
+	}
+	us := user.NewService(repo)
 
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterUserV1Server(s, dgrpc.NewServer())
+	desc.RegisterUserV1Server(s, dgrpc.NewServer(us))
 
 	slog.Info("server listening at", "address", lis.Addr().String())
 
