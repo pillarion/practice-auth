@@ -41,7 +41,7 @@ func (p *pg) InsertUser(ctx context.Context, user *desc.User) (int64, error) {
 		PlaceholderFormat(sq.Dollar).
 		Columns("name", "email", "password", "role").
 		Values(user.Name, user.Email, user.Password, user.Role).
-		Suffix("RETURNING id")
+		Suffix("RETURNING user_id")
 
 	query, args, err := builderInsert.ToSql()
 	if err != nil {
