@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// UserDTO defines the user model for the database
 type UserDTO struct {
 	ID        int64
 	Name      string

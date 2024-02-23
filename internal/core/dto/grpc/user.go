@@ -5,6 +5,7 @@ import (
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// UserInfoDTO defines the user model for the grpc server
 type UserInfoDTO struct {
 	ID       int64
 	Name     string
@@ -13,6 +14,7 @@ type UserInfoDTO struct {
 	Role     pb.Role
 }
 
+// UserDTO defines the user model for the grpc server
 type UserDTO struct {
 	User      *UserInfoDTO
 	CreatedAt *timestamppb.Timestamp

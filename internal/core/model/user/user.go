@@ -3,9 +3,12 @@ package user
 import "time"
 
 const (
+	// RoleUnknown is the default role
 	RoleUnknown = "UNKNOWN"
-	RoleUser    = "USER"
-	RoleAdmin   = "ADMIN"
+	// RoleUser is the user role
+	RoleUser = "USER"
+	// RoleAdmin is the admin role
+	RoleAdmin = "ADMIN"
 )
 
 // User defines the user model
