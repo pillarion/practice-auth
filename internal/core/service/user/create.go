@@ -4,11 +4,18 @@ import (
 	"context"
 
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
+	"github.com/pillarion/practice-auth/internal/core/tools/password"
 )
 
 func (s service) Create(ctx context.Context, user *desc.User) (int64, error) {
-	res, err := s.userRepo.InsertUser(ctx, user)
 
+	todb, _, _, err := password.Hash(user.Password)
+	if err != nil {
+		return 0, err
+	}
+	user.Password = todb
+
+	res, err := s.userRepo.InsertUser(ctx, user)
 	if err != nil {
 		return 0, err
 	}
