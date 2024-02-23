@@ -125,7 +125,7 @@ jobs:
             echo "CONTAINER_NAME=$CONTAINER_NAME" >> .env
             echo "GRPC_PORT=$GRPC_PORT" >> .env
 
-            cat .secrets/.env >> .env
+            cat .secrets/auth.env >> .env
 
             # Login into Selectel Registry
             sudo docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
