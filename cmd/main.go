@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net"
 
@@ -21,16 +22,12 @@ func main() {
 
 	cfg, err := config.Get()
 	if err != nil {
-		slog.Warn("failed to get config", "Error", err)
+		log.Fatalf("failed to get config: %v", err)
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPC.Port))
-	if err != nil {
-		slog.Warn("failed to listen", "Error", err)
-	}
 	repo, err := postgresql.New(ctx, &cfg.Database)
 	if err != nil {
-		slog.Warn("failed to create repo", "Error", err)
+		log.Fatalf("failed to create repo: %v", err)
 	}
 	us := user.NewService(repo)
 
@@ -38,9 +35,12 @@ func main() {
 	reflection.Register(s)
 	desc.RegisterUserV1Server(s, dgrpc.NewServer(us))
 
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPC.Port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
 	slog.Info("server listening at", "address", lis.Addr().String())
-
 	if err = s.Serve(lis); err != nil {
-		slog.Warn("failed to serve", "Error", err)
+		log.Fatalf("failed to serve grpc: %v", err)
 	}
 }

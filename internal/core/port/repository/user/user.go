@@ -1,4 +1,4 @@
-package db
+package user
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
 )
 
-// UserRepo defines the database interface.
-type UserRepo interface {
-	InsertUser(ctx context.Context, user *desc.User) (int64, error)
-	SelectUser(ctx context.Context, id int64) (*desc.User, error)
-	UpdateUser(ctx context.Context, user *desc.User) error
-	DeleteUser(ctx context.Context, id int64) error
+// Repo defines the database interface.
+type Repo interface {
+	Insert(ctx context.Context, user *desc.User) (int64, error)
+	Select(ctx context.Context, id int64) (*desc.User, error)
+	Update(ctx context.Context, user *desc.User) error
+	Delete(ctx context.Context, id int64) error
 }

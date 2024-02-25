@@ -9,8 +9,7 @@ import (
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
 )
 
-func (p *pg) UpdateUser(ctx context.Context, user *desc.User) error {
-
+func (p *pg) Update(ctx context.Context, user *desc.User) error {
 	userDTO := dto.UserDTO{
 		ID:        user.ID,
 		Name:      user.Name,
@@ -20,32 +19,30 @@ func (p *pg) UpdateUser(ctx context.Context, user *desc.User) error {
 		CreatedAt: user.CreatedAt,
 	}
 
-	builderUpdate := sq.Update("users").
+	builderUpdate := sq.Update(usersTable).
 		PlaceholderFormat(sq.Dollar)
-
 	if userDTO.Name != "" {
-		builderUpdate = builderUpdate.Set("name", userDTO.Name)
+		builderUpdate = builderUpdate.Set(usersTableNameColumn, userDTO.Name)
 	}
 	if userDTO.Email != "" {
-		builderUpdate = builderUpdate.Set("email", userDTO.Email)
+		builderUpdate = builderUpdate.Set(usersTableEmailColumn, userDTO.Email)
 	}
 	if userDTO.Password != "" {
-		builderUpdate = builderUpdate.Set("password", userDTO.Password)
+		builderUpdate = builderUpdate.Set(usersTablePasswordColumn, userDTO.Password)
 	}
 	if userDTO.Role != desc.RoleUnknown {
-		builderUpdate = builderUpdate.Set("role", userDTO.Role)
+		builderUpdate = builderUpdate.Set(usersTableRoleColumn, userDTO.Role)
 	}
-
-	builderUpdate = builderUpdate.Set("updated_at", time.Now()).
-		Where(sq.Eq{"id": userDTO.ID})
-
+	builderUpdate = builderUpdate.Set(usersTableUpdatedAtColumn, time.Now()).
+		Where(sq.Eq{usersTableIDColumn: userDTO.ID})
 	query, args, err := builderUpdate.ToSql()
 	if err != nil {
+
 		return err
 	}
-
 	_, err = p.pgx.Exec(ctx, query, args...)
 	if err != nil {
+
 		return err
 	}
 

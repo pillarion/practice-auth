@@ -11,10 +11,10 @@ services:
       - dmz
       - ins
     depends_on:
-      - pg
-      - migrator
+      - auth-pg
+      - auth-migrator
   
-  pg:
+  auth-pg:
     image: postgres:16-alpine3.19
     env_file:
       - .env
@@ -42,7 +42,7 @@ services:
     networks:
       - ins
     depends_on:
-      - pg
+      - auth-pg
 
 
 volumes:

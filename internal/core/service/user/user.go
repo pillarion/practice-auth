@@ -6,14 +6,14 @@ import (
 )
 
 type service struct {
-	userRepo repo.UserRepo
+	userRepo repo.Repo
 }
 
 // NewService initializes a new service with the given user repository.
 //
 // userRepo: the user repository for the service.
 // returns: a UserService port.
-func NewService(userRepo repo.UserRepo) user.Service {
+func NewService(userRepo repo.Repo) user.Service {
 	return &service{
 		userRepo: userRepo,
 	}

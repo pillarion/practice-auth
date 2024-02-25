@@ -10,12 +10,13 @@ import (
 
 // CreateUser implements the CreateUser method of the UserV1Server interface.
 func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
-
 	if req.GetName() == "" || req.GetEmail() == "" || req.GetPassword() == "" || req.GetRole().Number() == 0 {
+
 		return nil, fmt.Errorf("name, email, password and role are required")
 	}
 
 	if req.GetPassword() != req.GetPasswordConfirm() {
+
 		return nil, fmt.Errorf("passwords do not match")
 	}
 
@@ -27,8 +28,8 @@ func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.Cre
 	}
 
 	res, err := s.userService.Create(ctx, user)
-
 	if err != nil {
+
 		return nil, err
 	}
 

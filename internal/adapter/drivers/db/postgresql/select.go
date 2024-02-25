@@ -13,18 +13,24 @@ import (
 // ctx - the context
 // id - the user ID
 // *desc.User, error - returns a user and an error
-func (p *pg) SelectUser(ctx context.Context, id int64) (*desc.User, error) {
-
-	builderSelect := sq.Select("id", "name", "email", "password", "role", "created_at", "updated_at").
-		From("users").
+func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
+	builderSelect := sq.Select(
+		usersTableIDColumn,
+		usersTableNameColumn,
+		usersTableEmailColumn,
+		usersTablePasswordColumn,
+		usersTableRoleColumn,
+		usersTableCreatedAtColumn,
+		usersTableUpdatedAtColumn,
+	).
+		From(usersTable).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.Eq{"id": id})
-
+		Where(sq.Eq{usersTableIDColumn: id})
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
+
 		return nil, err
 	}
-
 	var userDTO dto.UserDTO
 	err = p.pgx.QueryRow(ctx, query, args...).
 		Scan(
@@ -37,6 +43,7 @@ func (p *pg) SelectUser(ctx context.Context, id int64) (*desc.User, error) {
 			&userDTO.UpdatedAt,
 		)
 	if err != nil {
+
 		return nil, err
 	}
 

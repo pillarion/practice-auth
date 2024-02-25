@@ -9,10 +9,9 @@ import (
 
 // GetUser implements the GetUser method of the UserV1Server interface.
 func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
-
 	res, err := s.userService.Get(ctx, req.GetId())
-
 	if err != nil {
+
 		return nil, err
 	}
 

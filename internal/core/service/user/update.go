@@ -12,18 +12,18 @@ import (
 // ctx context.Context, user *desc.User
 // error
 func (s service) Update(ctx context.Context, user *desc.User) error {
-
 	if user.Password != "" {
-		todb, _, _, err := password.Hash(user.Password)
+		todb, err := password.Hash(user.Password)
 		if err != nil {
+
 			return err
 		}
 		user.Password = todb
 	}
 
-	err := s.userRepo.UpdateUser(ctx, user)
-
+	err := s.userRepo.Update(ctx, user)
 	if err != nil {
+
 		return err
 	}
 

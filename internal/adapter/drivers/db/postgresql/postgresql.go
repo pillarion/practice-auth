@@ -7,7 +7,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/pillarion/practice-auth/internal/core/entity/config"
-	repo "github.com/pillarion/practice-auth/internal/core/port/repository/user"
+	"github.com/pillarion/practice-auth/internal/core/port/repository/user"
+)
+
+const (
+	usersTable                = "users"
+	usersTableIDColumn        = "id"
+	usersTableNameColumn      = "name"
+	usersTableEmailColumn     = "email"
+	usersTablePasswordColumn  = "password"
+	usersTableRoleColumn      = "role"
+	usersTableCreatedAtColumn = "created_at"
+	usersTableUpdatedAtColumn = "updated_at"
 )
 
 type pg struct {
@@ -18,7 +29,7 @@ type pg struct {
 //
 // ctx context.Context, cfg *config.Database
 // repo.UserRepo, error
-func New(ctx context.Context, cfg *config.Database) (repo.UserRepo, error) {
+func New(ctx context.Context, cfg *config.Database) (user.Repo, error) {
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", cfg.Host, cfg.Port, cfg.User, cfg.Db, cfg.Pass)
 

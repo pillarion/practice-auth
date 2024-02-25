@@ -8,15 +8,16 @@ import (
 )
 
 func (s service) Create(ctx context.Context, user *desc.User) (int64, error) {
-
-	todb, _, _, err := password.Hash(user.Password)
+	todb, err := password.Hash(user.Password)
 	if err != nil {
+
 		return 0, err
 	}
 	user.Password = todb
 
-	res, err := s.userRepo.InsertUser(ctx, user)
+	res, err := s.userRepo.Insert(ctx, user)
 	if err != nil {
+
 		return 0, err
 	}
 

@@ -6,5 +6,5 @@ import (
 
 // Config defines the config interface.
 type Config interface {
-	GetConfig() (*ecfg.Config, error)
+	Get() (*ecfg.Config, error)
 }

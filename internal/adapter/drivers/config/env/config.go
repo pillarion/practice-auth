@@ -21,39 +21,45 @@ const (
 //
 // Returns *ecfg.Config, error.
 func Get() (*ecfg.Config, error) {
-
 	grpcPort, err := getEnv(rpcPortEnv)
 	if err != nil {
+
 		return nil, err
 	}
 
 	grpcPortInt, err := strconv.Atoi(grpcPort)
 	if err != nil {
+
 		return nil, err
 	}
 
 	pgdb, err := getEnv(pgDBEnv)
 	if err != nil {
+
 		return nil, err
 	}
 
 	pguser, err := getEnv(pgUserEnv)
 	if err != nil {
+
 		return nil, err
 	}
 
 	pgpass, err := getEnv(pgPassEnv)
 	if err != nil {
+
 		return nil, err
 	}
 
 	pghost, err := getEnv(pgHostEnv)
 	if err != nil {
+
 		return nil, err
 	}
 
 	pgport, err := getEnv(pgPortEnv)
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -74,7 +80,9 @@ func Get() (*ecfg.Config, error) {
 func getEnv(env string) (string, error) {
 	val := os.Getenv(env)
 	if val == "" {
+
 		return "", fmt.Errorf("env %s is not set", env)
 	}
+
 	return val, nil
 }
