@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  auth:
+    image: ${REGISTRY}/${IMAGE_NAME}:${TAG_NAME}
+    env_file:
+      - .env
+    ports:
+      - ${GRPC_PORT}:50051
+    networks:
+      - dmz
+      - ins
+    depends_on:
+      - auth-pg
+      - auth-migrator
+  
+  auth-pg:
+    image: postgres:16-alpine3.19
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER} "]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - ins
+
+  auth-migrator:
+    image: cr.selcloud.ru/practice/migrator:latest
+    env_file:
+      - .env
+    volumes:
+        - ./auth-service/migrations:/go/bin/migrations
+    restart: on-failure
+    networks:
+      - ins
+    depends_on:
+      - auth-pg
+
+
+volumes:
+  pg-data:
+    
+networks:
+  dmz:
+  ins:
