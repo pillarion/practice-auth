@@ -28,7 +28,6 @@ func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
 		Where(sq.Eq{usersTableIDColumn: id})
 	query, args, err := builderSelect.ToSql()
 	if err != nil {
-
 		return nil, err
 	}
 	var userDTO dto.UserDTO
@@ -43,7 +42,6 @@ func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
 			&userDTO.UpdatedAt,
 		)
 	if err != nil {
-
 		return nil, err
 	}
 

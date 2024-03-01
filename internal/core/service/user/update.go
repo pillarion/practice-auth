@@ -15,7 +15,6 @@ func (s service) Update(ctx context.Context, user *desc.User) error {
 	if user.Password != "" {
 		todb, err := password.Hash(user.Password)
 		if err != nil {
-
 			return err
 		}
 		user.Password = todb
@@ -23,7 +22,6 @@ func (s service) Update(ctx context.Context, user *desc.User) error {
 
 	err := s.userRepo.Update(ctx, user)
 	if err != nil {
-
 		return err
 	}
 

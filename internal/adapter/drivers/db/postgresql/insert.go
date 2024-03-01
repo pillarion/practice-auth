@@ -33,13 +33,11 @@ func (p *pg) Insert(ctx context.Context, user *desc.User) (int64, error) {
 		Suffix("RETURNING " + usersTableIDColumn)
 	query, args, err := builderInsert.ToSql()
 	if err != nil {
-
 		return 0, err
 	}
 	var userID int64
 	err = p.pgx.QueryRow(ctx, query, args...).Scan(&userID)
 	if err != nil {
-
 		return 0, err
 	}
 

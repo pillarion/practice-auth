@@ -19,7 +19,6 @@ func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.
 
 	err := s.userService.Update(ctx, updUser)
 	if err != nil {
-
 		return nil, err
 	}
 

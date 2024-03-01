@@ -37,12 +37,10 @@ func (p *pg) Update(ctx context.Context, user *desc.User) error {
 		Where(sq.Eq{usersTableIDColumn: userDTO.ID})
 	query, args, err := builderUpdate.ToSql()
 	if err != nil {
-
 		return err
 	}
 	_, err = p.pgx.Exec(ctx, query, args...)
 	if err != nil {
-
 		return err
 	}
 

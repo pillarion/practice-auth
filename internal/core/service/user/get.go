@@ -9,7 +9,6 @@ import (
 func (s service) Get(ctx context.Context, id int64) (*desc.User, error) {
 	res, err := s.userRepo.Select(ctx, id)
 	if err != nil {
-
 		return nil, err
 	}
 
