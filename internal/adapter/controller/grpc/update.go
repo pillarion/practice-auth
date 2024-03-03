@@ -8,8 +8,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// UpdateUser implements the UpdateUser method of the UserV1Server interface.
-func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+// Update implements the UpdateUser method of the UserV1Server interface.
+func (s *Server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	updUser := &model.User{
 		ID:    req.GetId(),
 		Name:  req.GetName().GetValue(),

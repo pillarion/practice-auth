@@ -1,20 +1,26 @@
 package user
 
 import (
-	repo "github.com/pillarion/practice-auth/internal/core/port/repository/user"
+	jrepo "github.com/pillarion/practice-auth/internal/core/port/repository/journal"
+	urepo "github.com/pillarion/practice-auth/internal/core/port/repository/user"
 	"github.com/pillarion/practice-auth/internal/core/port/service/user"
+	pgclient "github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
 )
 
 type service struct {
-	userRepo repo.Repo
+	userRepo    urepo.Repo
+	journalRepo jrepo.Repo
+	txManager   pgclient.TxManager
 }
 
 // NewService initializes a new service with the given user repository.
 //
 // userRepo: the user repository for the service.
 // returns: a UserService port.
-func NewService(userRepo repo.Repo) user.Service {
+func NewService(ur urepo.Repo, jr jrepo.Repo, txManager pgclient.TxManager) user.Service {
 	return &service{
-		userRepo: userRepo,
+		userRepo:    ur,
+		journalRepo: jr,
+		txManager:   txManager,
 	}
 }

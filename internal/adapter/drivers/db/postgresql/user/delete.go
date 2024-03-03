@@ -4,6 +4,7 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+	db "github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
 )
 
 func (p *pg) Delete(ctx context.Context, id int64) error {
@@ -14,7 +15,11 @@ func (p *pg) Delete(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = p.pgx.Exec(ctx, query, args...)
+	q := db.Query{
+		Name:     "User.Delete",
+		QueryRaw: query,
+	}
+	_, err = p.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}

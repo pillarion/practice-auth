@@ -3,13 +3,12 @@ module github.com/pillarion/practice-auth
 go 1.22.0
 
 require (
-	github.com/brianvoe/gofakeit v3.18.0+incompatible
+	github.com/Masterminds/squirrel v1.5.4
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 )
 
 require (
-	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
@@ -20,8 +19,10 @@ require (
 )
 
 require (
+	github.com/georgysavva/scany/v2 v2.1.0
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jackc/pgx/v5 v5.5.3
+	github.com/pkg/errors v0.9.1
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect

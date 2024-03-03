@@ -7,6 +7,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	dto "github.com/pillarion/practice-auth/internal/core/dto/postgresql"
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
+	db "github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
 )
 
 func (p *pg) Update(ctx context.Context, user *desc.User) error {
@@ -39,7 +40,11 @@ func (p *pg) Update(ctx context.Context, user *desc.User) error {
 	if err != nil {
 		return err
 	}
-	_, err = p.pgx.Exec(ctx, query, args...)
+	q := db.Query{
+		Name:     "User.Update",
+		QueryRaw: query,
+	}
+	_, err = p.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		return err
 	}

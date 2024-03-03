@@ -42,6 +42,9 @@ linters:
     - revive
     - typecheck
     - unused
+    - whitespace
+    - sqlclosecheck
+    - importas
 
 issues:
   exclude-use-default: false

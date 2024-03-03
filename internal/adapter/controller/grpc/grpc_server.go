@@ -5,13 +5,16 @@ import (
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
 )
 
-type server struct {
+// Server implements the user gRPC service.
+type Server struct {
 	desc.UnimplementedUserV1Server
 	userService user.Service
 }
 
-func NewServer(us user.Service) *server {
-	return &server{
+// NewServer creates a new server instance with the given user service.
+// It takes a user service as a parameter and returns a pointer to a server.
+func NewServer(us user.Service) *Server {
+	return &Server{
 		userService: us,
 	}
 }
