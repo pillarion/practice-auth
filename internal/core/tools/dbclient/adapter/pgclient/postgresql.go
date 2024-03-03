@@ -9,16 +9,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
+	txmanager "github.com/pillarion/practice-auth/internal/core/tools/dbclient/adapter/pgtxmanager"
+	port "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
 	"github.com/pillarion/practice-auth/internal/core/tools/prettier"
 	"github.com/pkg/errors"
-)
-
-type key string
-
-const (
-	// TxKey is the key for the transaction in the context
-	TxKey key = "tx"
 )
 
 type pg struct {
@@ -61,7 +55,7 @@ func (p *pg) ScanAllContext(ctx context.Context, dest interface{}, q port.Query,
 func (p *pg) ExecContext(ctx context.Context, q port.Query, args ...interface{}) (pgconn.CommandTag, error) {
 	logQuery(ctx, q, args...)
 
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ctx.Value(txmanager.TxKey).(pgx.Tx)
 	if ok {
 		return tx.Exec(ctx, q.QueryRaw, args...)
 	}
@@ -72,7 +66,7 @@ func (p *pg) ExecContext(ctx context.Context, q port.Query, args ...interface{})
 func (p *pg) QueryContext(ctx context.Context, q port.Query, args ...interface{}) (pgx.Rows, error) {
 	logQuery(ctx, q, args...)
 
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ctx.Value(txmanager.TxKey).(pgx.Tx)
 	if ok {
 		return tx.Query(ctx, q.QueryRaw, args...)
 	}
@@ -83,7 +77,7 @@ func (p *pg) QueryContext(ctx context.Context, q port.Query, args ...interface{}
 func (p *pg) QueryRowContext(ctx context.Context, q port.Query, args ...interface{}) pgx.Row {
 	logQuery(ctx, q, args...)
 
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ctx.Value(txmanager.TxKey).(pgx.Tx)
 	if ok {
 		return tx.QueryRow(ctx, q.QueryRaw, args...)
 	}
@@ -101,11 +95,6 @@ func (p *pg) Ping(ctx context.Context) error {
 
 func (p *pg) Close() {
 	p.dbc.Close()
-}
-
-// MakeContextTx adds tx to context
-func MakeContextTx(ctx context.Context, tx pgx.Tx) context.Context {
-	return context.WithValue(ctx, TxKey, tx)
 }
 
 func logQuery(ctx context.Context, q port.Query, args ...interface{}) {

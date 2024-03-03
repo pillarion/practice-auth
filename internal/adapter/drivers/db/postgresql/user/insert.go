@@ -6,7 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	dto "github.com/pillarion/practice-auth/internal/core/dto/postgresql"
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
-	db "github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
+	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
 )
 
 // InsertUser inserts a new user into the database.

@@ -2,7 +2,7 @@ package journal
 
 import (
 	j "github.com/pillarion/practice-auth/internal/core/port/repository/journal"
-	db "github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
+	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
 )
 
 const (

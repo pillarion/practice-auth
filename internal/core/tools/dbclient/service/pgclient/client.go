@@ -1,7 +1,7 @@
 package service
 
 import (
-	db "github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
+	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
 )
 
 type pgClient struct {

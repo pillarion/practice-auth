@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS journal (
     id SERIAL PRIMARY KEY,
     action TEXT NOT NULL,
-    created_at timestamp not null default now()
+    created_at timestamp NOT NULL DEFAULT now()
 );
 -- +goose StatementEnd
 

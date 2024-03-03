@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
+	dto "github.com/pillarion/practice-auth/internal/core/dto/grpc"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Get implements the GetUser method of the UserV1Server interface.
@@ -13,15 +13,15 @@ func (s *Server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRespon
 	if err != nil {
 		return nil, err
 	}
+	d := dto.UserToDTO(res)
+
 	response := &desc.GetResponse{
-		Id:        res.ID,
-		Name:      res.Name,
-		Email:     res.Email,
-		Role:      desc.Role(desc.Role_value[res.Role]),
-		CreatedAt: timestamppb.New(res.CreatedAt),
-	}
-	if !res.UpdatedAt.IsZero() {
-		response.UpdatedAt = timestamppb.New(res.UpdatedAt)
+		Id:        d.User.ID,
+		Name:      d.User.Name,
+		Email:     d.User.Email,
+		Role:      d.User.Role,
+		CreatedAt: d.CreatedAt,
+		UpdatedAt: d.UpdatedAt,
 	}
 
 	return response, nil

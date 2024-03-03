@@ -70,8 +70,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 // Returns an error.
 func (a *App) Run() error {
 	defer func() {
-		//		closer.CloseAll()
-		//		closer.Wait()
+		CloseAll()
+		Wait()
 	}()
 
 	return a.runGRPCServer()

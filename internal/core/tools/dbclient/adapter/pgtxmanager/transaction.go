@@ -4,8 +4,15 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/pillarion/practice-auth/internal/core/tools/pgclient/port"
+	port "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgtxmanager"
 	"github.com/pkg/errors"
+)
+
+type key string
+
+const (
+	// TxKey is the key for the transaction in the context
+	TxKey key = "tx"
 )
 
 type manager struct {
@@ -73,4 +80,9 @@ func (m *manager) transaction(ctx context.Context, opts pgx.TxOptions, fn port.H
 	}
 
 	return err
+}
+
+// MakeContextTx adds tx to context
+func MakeContextTx(ctx context.Context, tx pgx.Tx) context.Context {
+	return context.WithValue(ctx, TxKey, tx)
 }

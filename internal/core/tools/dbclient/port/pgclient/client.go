@@ -5,6 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	pgtxmanager "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgtxmanager"
 )
 
 // Client represents a client for DB
@@ -16,7 +17,7 @@ type Client interface {
 // DB represents a database
 type DB interface {
 	SQLExecer
-	Transactor
+	pgtxmanager.Transactor
 	Pinger
 	Close()
 }
