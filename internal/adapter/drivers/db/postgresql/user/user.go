@@ -1,13 +1,8 @@
 package postgresql
 
 import (
-	"context"
-	"fmt"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-
-	"github.com/pillarion/practice-auth/internal/core/entity/config"
 	"github.com/pillarion/practice-auth/internal/core/port/repository/user"
+	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
 )
 
 const (
@@ -22,23 +17,15 @@ const (
 )
 
 type pg struct {
-	pgx *pgxpool.Pool
+	db db.Client
 }
 
 // New initializes a new user repository using the provided database configuration.
 //
-// ctx context.Context, cfg *config.Database
+// db: the database client.
 // repo.UserRepo, error
-func New(ctx context.Context, cfg *config.Database) (user.Repo, error) {
-
-	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", cfg.Host, cfg.Port, cfg.User, cfg.Db, cfg.Pass)
-
-	pgx, err := pgxpool.New(ctx, dsn)
-	if err != nil {
-		return nil, err
-	}
-
+func New(db db.Client) (user.Repo, error) {
 	return &pg{
-		pgx: pgx,
+		db: db,
 	}, nil
 }

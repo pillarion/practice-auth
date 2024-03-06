@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role TEXT NOT NULL,
-    created_at timestamp not null default now(),
+    created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp
 );
 -- +goose StatementEnd

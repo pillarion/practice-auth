@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	dto "github.com/pillarion/practice-auth/internal/core/dto/postgresql"
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
+	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
 )
 
 // SelectUser selects a user from the database based on the given ID.
@@ -30,17 +31,12 @@ func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	q := db.Query{
+		Name:     "User.Select",
+		QueryRaw: query,
+	}
 	var userDTO dto.UserDTO
-	err = p.pgx.QueryRow(ctx, query, args...).
-		Scan(
-			&userDTO.ID,
-			&userDTO.Name,
-			&userDTO.Email,
-			&userDTO.Password,
-			&userDTO.Role,
-			&userDTO.CreatedAt,
-			&userDTO.UpdatedAt,
-		)
+	err = p.db.DB().ScanOneContext(ctx, &userDTO, q, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +48,9 @@ func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
 		Password:  userDTO.Password,
 		Role:      userDTO.Role,
 		CreatedAt: userDTO.CreatedAt,
-		UpdatedAt: userDTO.UpdatedAt.Time,
+	}
+	if userDTO.UpdatedAt.Valid {
+		user.UpdatedAt = userDTO.UpdatedAt.Time
 	}
 
 	return &user, nil

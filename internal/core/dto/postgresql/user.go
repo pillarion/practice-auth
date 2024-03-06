@@ -7,11 +7,11 @@ import (
 
 // UserDTO defines the user model for the database
 type UserDTO struct {
-	ID        int64
-	Name      string
-	Email     string
-	Password  string
-	Role      string
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	ID        int64        `db:"id"`
+	Name      string       `db:"name"`
+	Email     string       `db:"email"`
+	Password  string       `db:"password"`
+	Role      string       `db:"role"`
+	CreatedAt time.Time    `db:"created_at"`
+	UpdatedAt sql.NullTime `db:"updated_at"`
 }
