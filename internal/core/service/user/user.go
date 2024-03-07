@@ -4,7 +4,7 @@ import (
 	journalRepo "github.com/pillarion/practice-auth/internal/core/port/repository/journal"
 	userRepo "github.com/pillarion/practice-auth/internal/core/port/repository/user"
 	"github.com/pillarion/practice-auth/internal/core/port/service/user"
-	txmanager "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgtxmanager"
+	txmanager "github.com/pillarion/practice-platform/pkg/pgtxmanager"
 )
 
 type service struct {
