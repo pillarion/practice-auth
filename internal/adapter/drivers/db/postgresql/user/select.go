@@ -42,11 +42,13 @@ func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
 	}
 
 	user := desc.User{
-		ID:        userDTO.ID,
-		Name:      userDTO.Name,
-		Email:     userDTO.Email,
-		Password:  userDTO.Password,
-		Role:      userDTO.Role,
+		Info: desc.Info{
+			ID:       userDTO.ID,
+			Name:     userDTO.Name,
+			Email:    userDTO.Email,
+			Password: userDTO.Password,
+			Role:     userDTO.Role,
+		},
 		CreatedAt: userDTO.CreatedAt,
 	}
 	if userDTO.UpdatedAt.Valid {

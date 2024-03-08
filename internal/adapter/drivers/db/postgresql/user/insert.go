@@ -14,7 +14,7 @@ import (
 // ctx - the context for the database operation.
 // user - the user object to be inserted.
 // (int64, error) - returns the user_id of the inserted user and any error encountered.
-func (p *pg) Insert(ctx context.Context, user *desc.User) (int64, error) {
+func (p *pg) Insert(ctx context.Context, user *desc.Info) (int64, error) {
 	userDTO := dto.UserDTO{
 		Name:     user.Name,
 		Email:    user.Email,

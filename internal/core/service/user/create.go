@@ -8,7 +8,7 @@ import (
 	"github.com/pillarion/practice-auth/internal/core/tools/password"
 )
 
-func (s service) Create(ctx context.Context, user *muser.User) (int64, error) {
+func (s service) Create(ctx context.Context, user *muser.Info) (int64, error) {
 	todb, err := password.Hash(user.Password)
 	if err != nil {
 		return 0, err
