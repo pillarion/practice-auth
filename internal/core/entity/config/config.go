@@ -4,10 +4,22 @@ package config
 type Config struct {
 	GRPC     GRPC     `yaml:"grpc"`
 	Database Database `yaml:"database"`
+	HTTP     HTTP     `yaml:"http"`
+	Swagger  Swagger  `yaml:"swagger"`
 }
 
 // GRPC holds the configuration for the gRPC server.
 type GRPC struct {
+	Port int `yaml:"port"`
+}
+
+// HTTP holds the configuration for the HTTP server.
+type HTTP struct {
+	Port int `yaml:"port"`
+}
+
+// Swagger holds the configuration for the Swagger server.
+type Swagger struct {
 	Port int `yaml:"port"`
 }
 

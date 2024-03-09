@@ -9,12 +9,14 @@ import (
 )
 
 const (
-	rpcPortEnv = "GRPC_PORT"
-	pgDBEnv    = "POSTGRES_DB"
-	pgUserEnv  = "POSTGRES_USER"
-	pgPassEnv  = "POSTGRES_PASSWORD"
-	pgHostEnv  = "POSTGRES_HOST"
-	pgPortEnv  = "POSTGRES_PORT"
+	rpcPortEnv    = "GRPC_PORT"
+	pgDBEnv       = "POSTGRES_DB"
+	pgUserEnv     = "POSTGRES_USER"
+	pgPassEnv     = "POSTGRES_PASSWORD"
+	pgHostEnv     = "POSTGRES_HOST"
+	pgPortEnv     = "POSTGRES_PORT"
+	httpPortEnv   = "HTTP_PORT"
+	swagerPortEnv = "SWAGGER_PORT"
 )
 
 // Get retrieves the configuration for the application.
@@ -56,6 +58,26 @@ func Get() (*ecfg.Config, error) {
 		return nil, err
 	}
 
+	httpPort, err := getEnv(httpPortEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	httpPortInt, err := strconv.Atoi(httpPort)
+	if err != nil {
+		return nil, err
+	}
+
+	swagerPort, err := getEnv(swagerPortEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	swagerPortInt, err := strconv.Atoi(swagerPort)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ecfg.Config{
 		GRPC: ecfg.GRPC{
 			Port: grpcPortInt,
@@ -66,6 +88,12 @@ func Get() (*ecfg.Config, error) {
 			Pass: pgpass,
 			Host: pghost,
 			Port: pgport,
+		},
+		HTTP: ecfg.HTTP{
+			Port: httpPortInt,
+		},
+		Swagger: ecfg.Swagger{
+			Port: swagerPortInt,
 		},
 	}, nil
 }
