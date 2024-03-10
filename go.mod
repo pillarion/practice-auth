@@ -28,7 +28,7 @@ require (
 	github.com/georgysavva/scany/v2 v2.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jackc/pgx/v5 v5.5.4 // indirect
-	github.com/pillarion/practice-platform v0.0.0-20240307123808-0daa382adf90
+	github.com/pillarion/practice-platform v0.0.0-20240309132824-e5ead01ddfde
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	golang.org/x/net v0.18.0 // indirect
