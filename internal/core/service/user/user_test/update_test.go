@@ -61,7 +61,6 @@ func Test_service_Update(t *testing.T) {
 		args            args
 		wantErr         bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "success case",
 			args: args{

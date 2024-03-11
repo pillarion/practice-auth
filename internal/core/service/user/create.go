@@ -14,7 +14,7 @@ import (
 // user: the user information to be inserted
 // int64: the ID of the newly created user
 // error: an error, if any
-func (s service) Create(ctx context.Context, user *muser.Info) (int64, error) {
+func (s *service) Create(ctx context.Context, user *muser.Info) (int64, error) {
 	todb, err := password.Hash(user.Password)
 	if err != nil {
 		return 0, err

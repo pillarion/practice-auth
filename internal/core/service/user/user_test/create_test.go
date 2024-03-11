@@ -65,7 +65,6 @@ func Test_service_Create(t *testing.T) {
 		want            int64
 		wantErr         bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "success case",
 			userRepoMock: func(mc *minimock.Controller) userRepo.Repo {

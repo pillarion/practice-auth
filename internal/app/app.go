@@ -19,9 +19,7 @@ import (
 
 	"github.com/pillarion/practice-auth/internal/adapter/controller/interceptor"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
-	_ "github.com/pillarion/practice-auth/statik"
-	clsr "github.com/pillarion/practice-platform/pkg/closer"
-)
+	closer "github.com/pillarion/practice-platform/pkg/closer"
 
 // App is the main application struct.
 type App struct {
@@ -176,8 +174,8 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 // Returns an error.
 func (a *App) Run() error {
 	defer func() {
-		clsr.CloseAll()
-		clsr.Wait()
+		closer.CloseAll()
+		closer.Wait()
 	}()
 
 	wg := sync.WaitGroup{}

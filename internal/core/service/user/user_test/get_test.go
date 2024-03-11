@@ -69,7 +69,6 @@ func Test_service_Get(t *testing.T) {
 		want            *model.User
 		wantErr         bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "succes case",
 			args: args{

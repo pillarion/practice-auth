@@ -51,7 +51,6 @@ func TestServer_Get(t *testing.T) {
 		want            *desc.GetResponse
 		wantErr         bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "correctly get user",
 			userServiceMock: func(mc *minimock.Controller) userService.Service {
