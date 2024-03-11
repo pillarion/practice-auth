@@ -53,7 +53,6 @@ func TestServer_Update(t *testing.T) {
 		want            *emptypb.Empty
 		wantErr         bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "correctly update user",
 			userServiceMock: func(mc *minimock.Controller) userService.Service {
