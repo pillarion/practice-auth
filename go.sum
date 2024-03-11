@@ -41,7 +41,6 @@ github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 h1:P6pPBnrTSX3DEVR4fDembhR
 github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0/go.mod h1:vmVJ0l/dxyfGW6FmdpVm2joNMFikkuWg0EoCKLGUMNw=
 github.com/lib/pq v1.10.0 h1:Zx5DJFEYQXio93kgXnQ09fXNiUKsqv4OUEu2UtGcB1E=
 github.com/lib/pq v1.10.0/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
-github.com/pillarion/practice-platform v0.0.0-20240307123808-0daa382adf90 h1:c/NTZ6yoR3V7gmg1XUqpyQ420QXj7W9O4wJSoeJvY5s=
 github.com/pillarion/practice-platform v0.0.0-20240307123808-0daa382adf90/go.mod h1:RpY64ZYlUd/oTbtkfANwx3wxuQ5T4ovPwjegVJ5I1dQ=
 github.com/pillarion/practice-platform v0.0.0-20240309132824-e5ead01ddfde h1:2wppsUetGEWSfB8ayLuZtAgj4d6ELGqD51e0T5nZvH0=
 github.com/pillarion/practice-platform v0.0.0-20240309132824-e5ead01ddfde/go.mod h1:GH3T7/7ulEJILCMTbHuzPEOOavcateEyFtcR0RGlm3U=

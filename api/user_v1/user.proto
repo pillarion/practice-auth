@@ -8,8 +8,27 @@ import "google/protobuf/wrappers.proto";
 import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/pillarion/practice-auth/pkg/user_v1;user_v1";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "User API"
+        version: "1.0.0"
+        contact: {
+            name: "pillarion"
+            email: "umenya@mail.net"
+        };
+    };
+    host: "localhost:8081",
+    schemes: HTTP,
+    schemes: HTTPS,
+    consumes: "application/json",
+    produces: "application/json",
+};
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: {
@@ -61,6 +80,7 @@ enum Role {
 message CreateRequest {
     string name = 1;
     string email = 2;
+    string password = 3 [(validate.rules).string = {min_len: 1, max_len: 50}];
     string password = 3 [(validate.rules).string = {min_len: 1, max_len: 50}];
     string password_confirm = 4;
     Role role = 5;
