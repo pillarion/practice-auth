@@ -20,6 +20,7 @@ import (
 	"github.com/pillarion/practice-auth/internal/adapter/controller/interceptor"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
 	closer "github.com/pillarion/practice-platform/pkg/closer"
+)
 
 // App is the main application struct.
 type App struct {

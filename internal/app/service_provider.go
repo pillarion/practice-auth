@@ -14,6 +14,7 @@ import (
 	userRepoPort "github.com/pillarion/practice-auth/internal/core/port/repository/user"
 	userServicePort "github.com/pillarion/practice-auth/internal/core/port/service/user"
 	userService "github.com/pillarion/practice-auth/internal/core/service/user"
+	_ "github.com/pillarion/practice-auth/statik"
 	clsr "github.com/pillarion/practice-platform/pkg/closer"
 	pgClient "github.com/pillarion/practice-platform/pkg/dbclient"
 	txManager "github.com/pillarion/practice-platform/pkg/pgtxmanager"
