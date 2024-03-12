@@ -78,3 +78,16 @@ test-coverage:
 	rm coverage.tmp.out
 	go tool cover -html=coverage.out;
 	go tool cover -func=./coverage.out | grep "total";
+
+
+gen-ca-cert:
+	openssl ecparam -name prime256v1 -genkey -out test/certs/ca.key
+	openssl req -new -key test/certs/ca.key -out test/certs/ca.csr -subj "/C=RU/ST=SPb/O=BestCAever"
+	openssl x509 -req -sha256 -days 1825 -in test/certs/ca.csr -signkey test/certs/ca.key -out test/certs/ca.crt
+
+gen-service-cert:
+	openssl ecparam -name prime256v1 -genkey -out test/certs/service.key
+	openssl req -new -key test/certs/service.key -out test/certs/service.csr -config config/certificate.conf
+	openssl x509 -req -sha256 -days 365 -in test/certs/service.csr -CA test/certs/ca.crt -CAkey test/certs/ca.key -CAcreateserial -out test/certs/service.crt -extfile config/certificate.conf -extensions req_ext
+
+gen-certs: gen-ca-cert gen-service-cert

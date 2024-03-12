@@ -14,10 +14,12 @@ import (
 	userRepoPort "github.com/pillarion/practice-auth/internal/core/port/repository/user"
 	userServicePort "github.com/pillarion/practice-auth/internal/core/port/service/user"
 	userService "github.com/pillarion/practice-auth/internal/core/service/user"
-	_ "github.com/pillarion/practice-auth/statik"
-	clsr "github.com/pillarion/practice-platform/pkg/closer"
+	closer "github.com/pillarion/practice-platform/pkg/closer"
 	pgClient "github.com/pillarion/practice-platform/pkg/dbclient"
 	txManager "github.com/pillarion/practice-platform/pkg/pgtxmanager"
+
+	// statik
+	_ "github.com/pillarion/practice-auth/statik"
 )
 
 type serviceProvider struct {
@@ -83,7 +85,7 @@ func (s *serviceProvider) DBClient(ctx context.Context) pgClient.Client {
 		if err != nil {
 			log.Fatalf("ping error: %s", err.Error())
 		}
-		clsr.Add(cl.Close)
+		closer.Add(cl.Close)
 
 		s.dbClient = cl
 	}

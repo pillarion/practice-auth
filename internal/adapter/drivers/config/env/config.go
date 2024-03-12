@@ -17,6 +17,10 @@ const (
 	pgPortEnv     = "POSTGRES_PORT"
 	httpPortEnv   = "HTTP_PORT"
 	swagerPortEnv = "SWAGGER_PORT"
+	tlsCertEnv    = "TLS_CERT"
+	tlsKeyEnv     = "TLS_KEY"
+	tlsCAEnv      = "TLS_CA"
+	tlsPathEnv    = "TLS_PATH"
 )
 
 // Get retrieves the configuration for the application.
@@ -78,6 +82,26 @@ func Get() (*ecfg.Config, error) {
 		return nil, err
 	}
 
+	tlsPath, err := getEnv(tlsPathEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	tlsCAcert, err := getEnv(tlsCAEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	tlsCert, err := getEnv(tlsCertEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	tlsKey, err := getEnv(tlsKeyEnv)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ecfg.Config{
 		GRPC: ecfg.GRPC{
 			Port: grpcPortInt,
@@ -94,6 +118,12 @@ func Get() (*ecfg.Config, error) {
 		},
 		Swagger: ecfg.Swagger{
 			Port: swagerPortInt,
+		},
+		TLS: ecfg.TLS{
+			Path: tlsPath,
+			CA:   tlsCAcert,
+			Cert: tlsCert,
+			Key:  tlsKey,
 		},
 	}, nil
 }

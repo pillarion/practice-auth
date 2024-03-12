@@ -6,6 +6,7 @@ type Config struct {
 	Database Database `yaml:"database"`
 	HTTP     HTTP     `yaml:"http"`
 	Swagger  Swagger  `yaml:"swagger"`
+	TLS      TLS      `yaml:"tls"`
 }
 
 // GRPC holds the configuration for the gRPC server.
@@ -30,4 +31,12 @@ type Database struct {
 	Db   string `yaml:"db"`
 	User string `yaml:"user"`
 	Pass string `yaml:"pass"`
+}
+
+// TLS holds the configuration for the TLS server.
+type TLS struct {
+	Cert string `yaml:"cert"`
+	Key  string `yaml:"key"`
+	CA   string `yaml:"ca"`
+	Path string `yaml:"path"`
 }

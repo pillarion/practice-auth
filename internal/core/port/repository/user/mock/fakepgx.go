@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// Pgtx implements pgx.Tx.
 type Pgtx struct{}
 
 // Conn implements pgx.Tx.
@@ -15,12 +16,12 @@ func (p *Pgtx) Conn() *pgx.Conn {
 }
 
 // CopyFrom implements pgx.Tx.
-func (p *Pgtx) CopyFrom(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error) {
+func (p *Pgtx) CopyFrom(_ context.Context, _ pgx.Identifier, _ []string, _ pgx.CopyFromSource) (int64, error) {
 	panic("unimplemented")
 }
 
 // Exec implements pgx.Tx.
-func (p *Pgtx) Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error) {
+func (p *Pgtx) Exec(_ context.Context, _ string, _ ...any) (commandTag pgconn.CommandTag, err error) {
 	panic("unimplemented")
 }
 
@@ -30,33 +31,36 @@ func (p *Pgtx) LargeObjects() pgx.LargeObjects {
 }
 
 // Prepare implements pgx.Tx.
-func (p *Pgtx) Prepare(ctx context.Context, name string, sql string) (*pgconn.StatementDescription, error) {
+func (p *Pgtx) Prepare(_ context.Context, _ string, _ string) (*pgconn.StatementDescription, error) {
 	panic("unimplemented")
 }
 
 // Query implements pgx.Tx.
-func (p *Pgtx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+func (p *Pgtx) Query(_ context.Context, _ string, _ ...any) (pgx.Rows, error) {
 	panic("unimplemented")
 }
 
 // QueryRow implements pgx.Tx.
-func (p *Pgtx) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+func (p *Pgtx) QueryRow(_ context.Context, _ string, _ ...any) pgx.Row {
 	panic("unimplemented")
 }
 
 // SendBatch implements pgx.Tx.
-func (p *Pgtx) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
+func (p *Pgtx) SendBatch(_ context.Context, _ *pgx.Batch) pgx.BatchResults {
 	panic("unimplemented")
 }
 
+// Commit implements pgx.Tx.
 func (*Pgtx) Commit(context.Context) error {
 	return nil
 }
 
+// Rollback implements pgx.Tx.
 func (*Pgtx) Rollback(context.Context) error {
 	return nil
 }
 
+// Begin implements pgx.Tx.
 func (*Pgtx) Begin(context.Context) (pgx.Tx, error) {
 	return &Pgtx{}, nil
 }

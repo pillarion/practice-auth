@@ -170,7 +170,6 @@ func Test_service_Get(t *testing.T) {
 
 			require.Equal(t, tt.want, res)
 			require.Equal(t, tt.wantErr, err != nil)
-
 		})
 	}
 }
