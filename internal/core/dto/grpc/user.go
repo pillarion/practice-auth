@@ -26,11 +26,11 @@ type UserDTO struct {
 func UserToDTO(user *model.User) *UserDTO {
 	dto := &UserDTO{
 		User: &UserInfoDTO{
-			ID:       user.ID,
-			Name:     user.Name,
-			Email:    user.Email,
-			Password: user.Password,
-			Role:     pb.Role(pb.Role_value[user.Role]),
+			ID:       user.Info.ID,
+			Name:     user.Info.Name,
+			Email:    user.Info.Email,
+			Password: user.Info.Password,
+			Role:     pb.Role(pb.Role_value[user.Info.Role]),
 		},
 		CreatedAt: timestamppb.New(user.CreatedAt),
 	}
@@ -44,12 +44,25 @@ func UserToDTO(user *model.User) *UserDTO {
 // UserToModel converts the grpc dto to the user model
 func UserToModel(dto *UserDTO) *model.User {
 	return &model.User{
-		ID:        dto.User.ID,
-		Name:      dto.User.Name,
-		Email:     dto.User.Email,
-		Password:  dto.User.Password,
-		Role:      dto.User.Role.String(),
+		Info: model.Info{
+			ID:       dto.User.ID,
+			Name:     dto.User.Name,
+			Email:    dto.User.Email,
+			Password: dto.User.Password,
+			Role:     dto.User.Role.String(),
+		},
 		CreatedAt: dto.CreatedAt.AsTime(),
 		UpdatedAt: dto.UpdatedAt.AsTime(),
+	}
+}
+
+// UserToModelInfo converts the grpc dto to the UserInfo model
+func UserToModelInfo(dto *UserDTO) *model.Info {
+	return &model.Info{
+		ID:       dto.User.ID,
+		Name:     dto.User.Name,
+		Email:    dto.User.Email,
+		Password: dto.User.Password,
+		Role:     dto.User.Role.String(),
 	}
 }

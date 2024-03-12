@@ -12,7 +12,7 @@ import (
 //
 // ctx context.Context, user *desc.User
 // error
-func (s service) Update(ctx context.Context, user *desc.User) error {
+func (s *service) Update(ctx context.Context, user *desc.Info) error {
 	if user.Password != "" {
 		todb, err := password.Hash(user.Password)
 		if err != nil {

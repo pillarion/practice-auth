@@ -6,7 +6,7 @@ import (
 	mjournal "github.com/pillarion/practice-auth/internal/core/model/journal"
 )
 
-func (s service) Delete(ctx context.Context, id int64) error {
+func (s *service) Delete(ctx context.Context, id int64) error {
 	err := s.txManager.ReadCommitted(
 		ctx,
 		func(ctx context.Context) error {

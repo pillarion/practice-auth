@@ -26,7 +26,7 @@ func (s *Server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.Cre
 		},
 	}
 
-	res, err := s.userService.Create(ctx, dto.UserToModel(d))
+	res, err := s.userService.Create(ctx, dto.UserToModelInfo(d))
 	if err != nil {
 		return nil, err
 	}

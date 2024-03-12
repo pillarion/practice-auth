@@ -7,7 +7,7 @@ import (
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
 )
 
-func (s service) Get(ctx context.Context, id int64) (*desc.User, error) {
+func (s *service) Get(ctx context.Context, id int64) (*desc.User, error) {
 	var res *desc.User
 	err := s.txManager.ReadCommitted(
 		ctx,

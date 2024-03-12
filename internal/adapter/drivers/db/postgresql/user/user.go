@@ -2,7 +2,7 @@ package postgresql
 
 import (
 	"github.com/pillarion/practice-auth/internal/core/port/repository/user"
-	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
+	db "github.com/pillarion/practice-platform/pkg/dbclient"
 )
 
 const (

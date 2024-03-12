@@ -6,7 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	dto "github.com/pillarion/practice-auth/internal/core/dto/postgresql"
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
-	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
+	db "github.com/pillarion/practice-platform/pkg/dbclient"
 )
 
 // SelectUser selects a user from the database based on the given ID.
@@ -42,11 +42,13 @@ func (p *pg) Select(ctx context.Context, id int64) (*desc.User, error) {
 	}
 
 	user := desc.User{
-		ID:        userDTO.ID,
-		Name:      userDTO.Name,
-		Email:     userDTO.Email,
-		Password:  userDTO.Password,
-		Role:      userDTO.Role,
+		Info: desc.Info{
+			ID:       userDTO.ID,
+			Name:     userDTO.Name,
+			Email:    userDTO.Email,
+			Password: userDTO.Password,
+			Role:     userDTO.Role,
+		},
 		CreatedAt: userDTO.CreatedAt,
 	}
 	if userDTO.UpdatedAt.Valid {

@@ -5,7 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	desc "github.com/pillarion/practice-auth/internal/core/model/journal"
-	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
+	db "github.com/pillarion/practice-platform/pkg/dbclient"
 )
 
 func (p *pg) Insert(ctx context.Context, j *desc.Journal) (int64, error) {

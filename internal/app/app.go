@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"
+	closer "github.com/pillarion/practice-platform/pkg/closer"
 )
 
 // App is the main application struct.
@@ -70,8 +71,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 // Returns an error.
 func (a *App) Run() error {
 	defer func() {
-		CloseAll()
-		Wait()
+		closer.CloseAll()
+		closer.Wait()
 	}()
 
 	return a.runGRPCServer()

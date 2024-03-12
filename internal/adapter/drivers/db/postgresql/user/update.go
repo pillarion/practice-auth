@@ -7,17 +7,16 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	dto "github.com/pillarion/practice-auth/internal/core/dto/postgresql"
 	desc "github.com/pillarion/practice-auth/internal/core/model/user"
-	db "github.com/pillarion/practice-auth/internal/core/tools/dbclient/port/pgclient"
+	db "github.com/pillarion/practice-platform/pkg/dbclient"
 )
 
-func (p *pg) Update(ctx context.Context, user *desc.User) error {
+func (p *pg) Update(ctx context.Context, user *desc.Info) error {
 	userDTO := dto.UserDTO{
-		ID:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		Password:  user.Password,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
+		ID:       user.ID,
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: user.Password,
+		Role:     user.Role,
 	}
 
 	builderUpdate := sq.Update(usersTable).

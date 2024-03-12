@@ -13,11 +13,16 @@ const (
 
 // User defines the user model
 type User struct {
-	ID        int64
-	Name      string
-	Email     string
-	Password  string
-	Role      string
+	Info      Info
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+// Info defines the user info model
+type Info struct {
+	ID       int64
+	Name     string
+	Email    string
+	Role     string
+	Password string
 }
