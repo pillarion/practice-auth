@@ -79,4 +79,5 @@ Temporary Items
 !.env.example
 /coverage.out
 /vendor.protogen/
-test/certs/*key
+test/certs/*.key
+test/certs/*.csr
