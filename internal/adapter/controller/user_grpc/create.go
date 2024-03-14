@@ -9,7 +9,7 @@ import (
 )
 
 // Create implements the CreateUser method of the UserV1Server interface.
-func (s *Server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
 	if req.GetName() == "" || req.GetEmail() == "" || req.GetPassword() == "" || req.GetRole().Number() == 0 {
 		return nil, fmt.Errorf("name, email, password and role are required")
 	}

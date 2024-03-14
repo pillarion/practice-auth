@@ -5,15 +5,26 @@ import (
 	"fmt"
 	"log"
 
-	grpcUserController "github.com/pillarion/practice-auth/internal/adapter/controller/grpc"
+	grpcAccessController "github.com/pillarion/practice-auth/internal/adapter/controller/access_grpc"
+	grpcAuthController "github.com/pillarion/practice-auth/internal/adapter/controller/auth_grpc"
+	grpcUserController "github.com/pillarion/practice-auth/internal/adapter/controller/user_grpc"
 	configDriver "github.com/pillarion/practice-auth/internal/adapter/drivers/config/env"
+	pgAccessDriver "github.com/pillarion/practice-auth/internal/adapter/drivers/db/postgresql/access"
 	pgJournalDriver "github.com/pillarion/practice-auth/internal/adapter/drivers/db/postgresql/journal"
 	pgUserDriver "github.com/pillarion/practice-auth/internal/adapter/drivers/db/postgresql/user"
 	config "github.com/pillarion/practice-auth/internal/core/entity/config"
+	accessRepoPort "github.com/pillarion/practice-auth/internal/core/port/repository/access"
 	journalRepoPort "github.com/pillarion/practice-auth/internal/core/port/repository/journal"
 	userRepoPort "github.com/pillarion/practice-auth/internal/core/port/repository/user"
+	accessServicePort "github.com/pillarion/practice-auth/internal/core/port/service/access"
+	authServicePort "github.com/pillarion/practice-auth/internal/core/port/service/auth"
 	userServicePort "github.com/pillarion/practice-auth/internal/core/port/service/user"
+	accessService "github.com/pillarion/practice-auth/internal/core/service/access"
+	authService "github.com/pillarion/practice-auth/internal/core/service/auth"
 	userService "github.com/pillarion/practice-auth/internal/core/service/user"
+	grpcAccessPort "github.com/pillarion/practice-auth/pkg/access_v1"
+	grpcAuthPort "github.com/pillarion/practice-auth/pkg/auth_v1"
+	grpcUserPort "github.com/pillarion/practice-auth/pkg/user_v1"
 	closer "github.com/pillarion/practice-platform/pkg/closer"
 	pgClient "github.com/pillarion/practice-platform/pkg/dbclient"
 	txManager "github.com/pillarion/practice-platform/pkg/pgtxmanager"
@@ -30,10 +41,15 @@ type serviceProvider struct {
 	txManager         txManager.TxManager
 	userRepository    userRepoPort.Repo
 	journalRepository journalRepoPort.Repo
+	accessRepository  accessRepoPort.Repo
 
-	userService userServicePort.Service
+	userService   userServicePort.Service
+	accessService accessServicePort.Service
+	authService   authServicePort.Service
 
-	userServer *grpcUserController.Server
+	userServer   grpcUserPort.UserV1Server
+	authServer   grpcAuthPort.AuthV1Server
+	accessServer grpcAccessPort.AccessV1Server
 }
 
 func newServiceProvider() *serviceProvider {
@@ -114,6 +130,19 @@ func (s *serviceProvider) UserRepository(ctx context.Context) userRepoPort.Repo 
 	return s.userRepository
 }
 
+func (s *serviceProvider) AccessRepository(ctx context.Context) accessRepoPort.Repo {
+	if s.accessRepository == nil {
+		repo, err := pgAccessDriver.New(s.DBClient(ctx))
+		if err != nil {
+			log.Fatalf("failed to create access repository: %v", err)
+		}
+
+		s.accessRepository = repo
+	}
+
+	return nil
+}
+
 func (s *serviceProvider) JournalRepository(ctx context.Context) journalRepoPort.Repo {
 	if s.journalRepository == nil {
 		repo, err := pgJournalDriver.New(s.DBClient(ctx))
@@ -137,7 +166,36 @@ func (s *serviceProvider) UserService(ctx context.Context) userServicePort.Servi
 	return s.userService
 }
 
-func (s *serviceProvider) UserServer(ctx context.Context) *grpcUserController.Server {
+func (s *serviceProvider) AccessService(ctx context.Context) accessServicePort.Service {
+	if s.accessService == nil {
+		service := accessService.NewService(
+			s.AccessRepository(ctx),
+			s.UserRepository(ctx),
+			s.TxManager(ctx),
+			s.JournalRepository(ctx),
+		)
+
+		s.accessService = service
+	}
+
+	return s.accessService
+}
+
+func (s *serviceProvider) AuhtService(ctx context.Context) authServicePort.Service {
+	if s.authService == nil {
+		service := authService.NewService(
+			s.UserRepository(ctx),
+			s.TxManager(ctx),
+			s.JournalRepository(ctx),
+		)
+
+		s.authService = service
+	}
+
+	return s.authService
+}
+
+func (s *serviceProvider) UserServer(ctx context.Context) grpcUserPort.UserV1Server {
 	if s.userServer == nil {
 		server := grpcUserController.NewServer(s.UserService(ctx))
 
@@ -145,4 +203,24 @@ func (s *serviceProvider) UserServer(ctx context.Context) *grpcUserController.Se
 	}
 
 	return s.userServer
+}
+
+func (s *serviceProvider) AccessServer(ctx context.Context) grpcAccessPort.AccessV1Server {
+	if s.accessServer == nil {
+		server := grpcAccessController.NewServer(s.AccessService(ctx))
+
+		s.accessServer = server
+	}
+
+	return s.accessServer
+}
+
+func (s *serviceProvider) AuthServer(ctx context.Context) grpcAuthPort.AuthV1Server {
+	if s.authServer == nil {
+		server := grpcAuthController.NewServer(s.AuhtService(ctx))
+
+		s.authServer = server
+	}
+
+	return s.authServer
 }

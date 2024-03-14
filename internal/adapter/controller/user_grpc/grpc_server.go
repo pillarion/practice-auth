@@ -6,15 +6,15 @@ import (
 )
 
 // Server implements the user gRPC service.
-type Server struct {
+type server struct {
 	desc.UnimplementedUserV1Server
 	userService user.Service
 }
 
 // NewServer creates a new server instance with the given user service.
 // It takes a user service as a parameter and returns a pointer to a server.
-func NewServer(us user.Service) *Server {
-	return &Server{
+func NewServer(us user.Service) *server {
+	return &server{
 		userService: us,
 	}
 }

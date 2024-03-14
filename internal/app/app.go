@@ -20,7 +20,9 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/pillarion/practice-auth/internal/adapter/controller/interceptor"
-	desc "github.com/pillarion/practice-auth/pkg/user_v1"
+	pbaccess "github.com/pillarion/practice-auth/pkg/access_v1"
+	pbauth "github.com/pillarion/practice-auth/pkg/auth_v1"
+	pbuser "github.com/pillarion/practice-auth/pkg/user_v1"
 	closer "github.com/pillarion/practice-platform/pkg/closer"
 )
 
@@ -85,7 +87,9 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 
 	reflection.Register(a.grpcServer)
 
-	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserServer(ctx))
+	pbuser.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserServer(ctx))
+	pbauth.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.AuthServer(ctx))
+	pbaccess.RegisterAccessV1Server(a.grpcServer, a.serviceProvider.AccessServer(ctx))
 
 	return nil
 }
@@ -107,7 +111,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	grpcAddr := fmt.Sprintf(":%d", a.serviceProvider.Config().GRPC.Port)
 	httpAddr := fmt.Sprintf(":%d", a.serviceProvider.Config().HTTP.Port)
 
-	err = desc.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, opts)
+	err = pbuser.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, opts)
 	if err != nil {
 		return err
 	}

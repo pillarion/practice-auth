@@ -31,6 +31,7 @@ require (
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/georgysavva/scany/v2 v2.1.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/jackc/pgx/v5 v5.5.4 // indirect
