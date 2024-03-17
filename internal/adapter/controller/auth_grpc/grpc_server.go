@@ -1,4 +1,4 @@
-package auth
+package auth_grpc
 
 import (
 	"github.com/pillarion/practice-auth/internal/core/port/service/auth"

@@ -77,7 +77,7 @@ func Test_service_Get(t *testing.T) {
 			},
 			userRepoMock: func(mc *minimock.Controller) userRepo.Repo {
 				mock := userRepoMock.NewRepoMock(mc).
-					SelectMock.Expect(ctxWithTx, id).
+					SelectByIDMock.Expect(ctxWithTx, id).
 					Return(usr, nil)
 
 				return mock
@@ -106,7 +106,7 @@ func Test_service_Get(t *testing.T) {
 			},
 			userRepoMock: func(mc *minimock.Controller) userRepo.Repo {
 				mock := userRepoMock.NewRepoMock(mc).
-					SelectMock.Expect(ctxWithTx, id).
+					SelectByIDMock.Expect(ctxWithTx, id).
 					Return(usr, nil)
 
 				return mock
@@ -135,7 +135,7 @@ func Test_service_Get(t *testing.T) {
 			},
 			userRepoMock: func(mc *minimock.Controller) userRepo.Repo {
 				mock := userRepoMock.NewRepoMock(mc).
-					SelectMock.Expect(ctxWithTx, id).
+					SelectByIDMock.Expect(ctxWithTx, id).
 					Return(nil, gofakeit.Error())
 
 				return mock

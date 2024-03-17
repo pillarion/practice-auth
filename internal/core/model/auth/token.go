@@ -8,7 +8,8 @@ type Credential struct {
 }
 
 type Claims struct {
-	Email string
-	Role  string
+	Name         string
+	Role         string
+	TokenVariant string
 	jwt.RegisteredClaims
 }

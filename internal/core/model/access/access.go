@@ -1,10 +1,11 @@
 package access
 
 type Matrix struct {
-	Access []Access `json:""`
+	Access []Access `db:""`
 }
 
 type Access struct {
-	Endpoint string `json:"endpoint"`
-	Role     string `json:"role"`
+	ID       int64  `db:"id"`
+	Endpoint string `db:"endpoint"`
+	Role     string `db:"role"`
 }

@@ -4,23 +4,27 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	ecfg "github.com/pillarion/practice-auth/internal/core/entity/config"
 )
 
 const (
-	rpcPortEnv    = "GRPC_PORT"
-	pgDBEnv       = "POSTGRES_DB"
-	pgUserEnv     = "POSTGRES_USER"
-	pgPassEnv     = "POSTGRES_PASSWORD"
-	pgHostEnv     = "POSTGRES_HOST"
-	pgPortEnv     = "POSTGRES_PORT"
-	httpPortEnv   = "HTTP_PORT"
-	swagerPortEnv = "SWAGGER_PORT"
-	tlsCertEnv    = "TLS_CERT"
-	tlsKeyEnv     = "TLS_KEY"
-	tlsCAEnv      = "TLS_CA"
-	tlsPathEnv    = "TLS_PATH"
+	rpcPortEnv            = "GRPC_PORT"
+	pgDBEnv               = "POSTGRES_DB"
+	pgUserEnv             = "POSTGRES_USER"
+	pgPassEnv             = "POSTGRES_PASSWORD"
+	pgHostEnv             = "POSTGRES_HOST"
+	pgPortEnv             = "POSTGRES_PORT"
+	httpPortEnv           = "HTTP_PORT"
+	swagerPortEnv         = "SWAGGER_PORT"
+	tlsCertEnv            = "TLS_CERT"
+	tlsKeyEnv             = "TLS_KEY"
+	tlsCAEnv              = "TLS_CA"
+	tlsPathEnv            = "TLS_PATH"
+	jwtAccessDurationEnv  = "JWT_ACCESS_DURATION"
+	jwtRefreshDurationEnv = "JWT_REFRESH_DURATION"
+	jwtSecretEnv          = "JWT_SECRET"
 )
 
 // Get retrieves the configuration for the application.
@@ -102,6 +106,31 @@ func Get() (*ecfg.Config, error) {
 		return nil, err
 	}
 
+	jwtAccessDuration, err := getEnv(jwtAccessDurationEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	jwtAccessDur, err := time.ParseDuration(jwtAccessDuration)
+	if err != nil {
+		return nil, err
+	}
+
+	jwtRefreshDuration, err := getEnv(jwtRefreshDurationEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	jwtRefreshDur, err := time.ParseDuration(jwtRefreshDuration)
+	if err != nil {
+		return nil, err
+	}
+
+	jwtSecret, err := getEnv(jwtSecretEnv)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ecfg.Config{
 		GRPC: ecfg.GRPC{
 			Port: grpcPortInt,
@@ -124,6 +153,11 @@ func Get() (*ecfg.Config, error) {
 			CA:   tlsCAcert,
 			Cert: tlsCert,
 			Key:  tlsKey,
+		},
+		JWT: ecfg.JWT{
+			Secret:          jwtSecret,
+			AccessDuration:  jwtAccessDur,
+			RefreshDuration: jwtRefreshDur,
 		},
 	}, nil
 }

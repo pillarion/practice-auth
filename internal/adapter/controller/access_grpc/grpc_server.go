@@ -1,4 +1,4 @@
-package access
+package access_grpc
 
 import (
 	"github.com/pillarion/practice-auth/internal/core/port/service/access"

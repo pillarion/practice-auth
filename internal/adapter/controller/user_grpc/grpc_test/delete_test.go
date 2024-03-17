@@ -6,7 +6,7 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	minimock "github.com/gojuno/minimock/v3"
-	target "github.com/pillarion/practice-auth/internal/adapter/controller/grpc"
+	target "github.com/pillarion/practice-auth/internal/adapter/controller/user_grpc"
 	userService "github.com/pillarion/practice-auth/internal/core/port/service/user"
 	serviceMock "github.com/pillarion/practice-auth/internal/core/port/service/user/mock"
 	desc "github.com/pillarion/practice-auth/pkg/user_v1"

@@ -8,7 +8,7 @@ import (
 	minimock "github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
 
-	target "github.com/pillarion/practice-auth/internal/adapter/controller/grpc"
+	target "github.com/pillarion/practice-auth/internal/adapter/controller/user_grpc"
 	model "github.com/pillarion/practice-auth/internal/core/model/user"
 	userService "github.com/pillarion/practice-auth/internal/core/port/service/user"
 	serviceMock "github.com/pillarion/practice-auth/internal/core/port/service/user/mock"

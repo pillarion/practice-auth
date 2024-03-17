@@ -7,5 +7,5 @@ import (
 )
 
 type Repo interface {
-	AccessMatrix(ctx context.Context, endpoint string) (*model.Matrix, error)
+	AccessMatrix(ctx context.Context, endpoint string) ([]model.Access, error)
 }

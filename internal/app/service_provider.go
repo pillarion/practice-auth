@@ -140,7 +140,7 @@ func (s *serviceProvider) AccessRepository(ctx context.Context) accessRepoPort.R
 		s.accessRepository = repo
 	}
 
-	return nil
+	return s.accessRepository
 }
 
 func (s *serviceProvider) JournalRepository(ctx context.Context) journalRepoPort.Repo {
@@ -158,7 +158,11 @@ func (s *serviceProvider) JournalRepository(ctx context.Context) journalRepoPort
 
 func (s *serviceProvider) UserService(ctx context.Context) userServicePort.Service {
 	if s.userService == nil {
-		service := userService.NewService(s.UserRepository(ctx), s.JournalRepository(ctx), s.TxManager(ctx))
+		service := userService.NewService(
+			s.UserRepository(ctx),
+			s.JournalRepository(ctx),
+			s.TxManager(ctx),
+		)
 
 		s.userService = service
 	}
@@ -173,6 +177,7 @@ func (s *serviceProvider) AccessService(ctx context.Context) accessServicePort.S
 			s.UserRepository(ctx),
 			s.TxManager(ctx),
 			s.JournalRepository(ctx),
+			s.Config().JWT,
 		)
 
 		s.accessService = service
@@ -181,12 +186,13 @@ func (s *serviceProvider) AccessService(ctx context.Context) accessServicePort.S
 	return s.accessService
 }
 
-func (s *serviceProvider) AuhtService(ctx context.Context) authServicePort.Service {
+func (s *serviceProvider) AuthService(ctx context.Context) authServicePort.Service {
 	if s.authService == nil {
 		service := authService.NewService(
 			s.UserRepository(ctx),
 			s.TxManager(ctx),
 			s.JournalRepository(ctx),
+			s.Config().JWT,
 		)
 
 		s.authService = service
@@ -217,7 +223,7 @@ func (s *serviceProvider) AccessServer(ctx context.Context) grpcAccessPort.Acces
 
 func (s *serviceProvider) AuthServer(ctx context.Context) grpcAuthPort.AuthV1Server {
 	if s.authServer == nil {
-		server := grpcAuthController.NewServer(s.AuhtService(ctx))
+		server := grpcAuthController.NewServer(s.AuthService(ctx))
 
 		s.authServer = server
 	}

@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 // Config holds the configuration for the application.
 type Config struct {
 	GRPC     GRPC     `yaml:"grpc"`
@@ -7,6 +9,7 @@ type Config struct {
 	HTTP     HTTP     `yaml:"http"`
 	Swagger  Swagger  `yaml:"swagger"`
 	TLS      TLS      `yaml:"tls"`
+	JWT      JWT      `yaml:"jwt"`
 }
 
 // GRPC holds the configuration for the gRPC server.
@@ -39,4 +42,10 @@ type TLS struct {
 	Key  string `yaml:"key"`
 	CA   string `yaml:"ca"`
 	Path string `yaml:"path"`
+}
+
+type JWT struct {
+	Secret          string        `yaml:"secret"`
+	AccessDuration  time.Duration `yaml:"accessDuration"`
+	RefreshDuration time.Duration `yaml:"refreshDuration"`
 }
