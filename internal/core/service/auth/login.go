@@ -50,7 +50,7 @@ func (s *service) Login(ctx context.Context, cred modelAuth.Credential) (string,
 		}
 
 		return refreshToken, nil
-	} else {
-		return "", fmt.Errorf("invalid credentials")
 	}
+
+	return "", fmt.Errorf("invalid credentials")
 }

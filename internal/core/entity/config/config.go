@@ -44,6 +44,7 @@ type TLS struct {
 	Path string `yaml:"path"`
 }
 
+// JWT holds the configuration for the JWT.
 type JWT struct {
 	Secret          string        `yaml:"secret"`
 	AccessDuration  time.Duration `yaml:"accessDuration"`

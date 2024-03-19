@@ -9,7 +9,9 @@ import (
 )
 
 const (
-	JWTAccessTokenVariant  = "access"
+	// JWTAccessTokenVariant is the variant of the access token.
+	JWTAccessTokenVariant = "access"
+	// JWTRefreshTokenVariant is the variant of the refresh token.
 	JWTRefreshTokenVariant = "refresh"
 )
 
@@ -58,7 +60,7 @@ func VerifyJWT(tokenString string, secret []byte, tokenVariant string) (*authMod
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&authModel.Claims{},
-		func(token *jwt.Token) (interface{}, error) {
+		func(_ *jwt.Token) (interface{}, error) {
 			return secret, nil
 		},
 		opt...)

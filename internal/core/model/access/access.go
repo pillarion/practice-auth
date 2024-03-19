@@ -1,9 +1,6 @@
 package access
 
-type Matrix struct {
-	Access []Access `db:""`
-}
-
+// Access model
 type Access struct {
 	ID       int64  `db:"id"`
 	Endpoint string `db:"endpoint"`

@@ -6,7 +6,7 @@ import (
 	jwtTool "github.com/pillarion/practice-auth/internal/core/tools/jwt"
 )
 
-func (s *service) GetRefreshToken(ctx context.Context, refreshToken string) (string, error) {
+func (s *service) GetRefreshToken(_ context.Context, refreshToken string) (string, error) {
 	claims, err := jwtTool.VerifyJWT(refreshToken, []byte(s.jwtConfig.Secret), jwtTool.JWTRefreshTokenVariant)
 	if err != nil {
 		return "", err

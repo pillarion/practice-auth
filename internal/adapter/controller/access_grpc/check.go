@@ -11,7 +11,6 @@ import (
 
 // Check access
 func (s *server) Check(ctx context.Context, req *desc.CheckRequest) (*emptypb.Empty, error) {
-
 	slog.Info("Check", "endpoint", req.GetEndpointAddress())
 
 	err := s.accessService.Check(ctx, req.GetEndpointAddress())
