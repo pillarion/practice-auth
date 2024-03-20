@@ -1,4 +1,4 @@
-package grpc
+package user_grpc
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 // Update implements the UpdateUser method of the UserV1Server interface.
-func (s *Server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 	updUser := &model.Info{
 		ID:    req.GetId(),
 		Name:  req.GetName().GetValue(),

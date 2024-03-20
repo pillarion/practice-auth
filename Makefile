@@ -25,6 +25,8 @@ generate:
 	mkdir -p pkg/swagger
 	make generate-user-api
 	$(LOCAL_BIN)/statik -f -src=pkg/swagger/ -include='*.css,*.html,*.js,*.json,*.png'
+	make generate-auth-api
+	make generate-access-api
 
 generate-user-api:
 	mkdir -p pkg/user_v1
@@ -42,6 +44,28 @@ generate-user-api:
 	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
 	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
 	api/user_v1/user.proto 
+
+generate-auth-api:
+	mkdir -p pkg/auth_v1
+	protoc --proto_path api/auth_v1 \
+	--go_out=pkg/auth_v1 \
+	--go_opt=paths=source_relative \
+	--plugin=protoc-gen-go=bin/protoc-gen-go \
+	--go-grpc_out=pkg/auth_v1 \
+	--go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
+	api/auth_v1/auth.proto
+
+generate-access-api:
+	mkdir -p pkg/access_v1
+	protoc --proto_path api/access_v1 \
+	--go_out=pkg/access_v1 \
+	--go_opt=paths=source_relative \
+	--plugin=protoc-gen-go=bin/protoc-gen-go \
+	--go-grpc_out=pkg/access_v1 \
+	--go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
+	api/access_v1/access.proto
 
 vendor-proto:
 		@if [ ! -d vendor.protogen/validate ]; then \
@@ -70,7 +94,6 @@ test:
 	go clean -testcache
 	go test ./... -covermode count  -count 5
 
-
 test-coverage:
 	go clean -testcache
 	go test ./... -coverprofile=coverage.tmp.out -covermode count  -count 5
@@ -78,3 +101,15 @@ test-coverage:
 	rm coverage.tmp.out
 	go tool cover -html=coverage.out;
 	go tool cover -func=./coverage.out | grep "total";
+
+gen-ca-cert:
+	openssl ecparam -name prime256v1 -genkey -out test/certs/ca.key
+	openssl req -new -key test/certs/ca.key -out test/certs/ca.csr -subj "/C=RU/ST=SPb/O=BestCAever"
+	openssl x509 -req -sha256 -days 1825 -in test/certs/ca.csr -signkey test/certs/ca.key -out test/certs/ca.crt
+
+gen-service-cert:
+	openssl ecparam -name prime256v1 -genkey -out test/certs/service.key
+	openssl req -new -key test/certs/service.key -out test/certs/service.csr -config config/certificate.conf
+	openssl x509 -req -sha256 -days 365 -in test/certs/service.csr -CA test/certs/ca.crt -CAkey test/certs/ca.key -CAcreateserial -out test/certs/service.crt -extfile config/certificate.conf -extensions req_ext
+
+gen-certs: gen-ca-cert gen-service-cert

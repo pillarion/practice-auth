@@ -31,11 +31,23 @@ type RepoMock struct {
 	beforeInsertCounter uint64
 	InsertMock          mRepoMockInsert
 
-	funcSelect          func(ctx context.Context, id int64) (up1 *model.User, err error)
-	inspectFuncSelect   func(ctx context.Context, id int64)
-	afterSelectCounter  uint64
-	beforeSelectCounter uint64
-	SelectMock          mRepoMockSelect
+	funcSelectByID          func(ctx context.Context, id int64) (up1 *model.User, err error)
+	inspectFuncSelectByID   func(ctx context.Context, id int64)
+	afterSelectByIDCounter  uint64
+	beforeSelectByIDCounter uint64
+	SelectByIDMock          mRepoMockSelectByID
+
+	funcSelectByName          func(ctx context.Context, username string) (up1 *model.User, err error)
+	inspectFuncSelectByName   func(ctx context.Context, username string)
+	afterSelectByNameCounter  uint64
+	beforeSelectByNameCounter uint64
+	SelectByNameMock          mRepoMockSelectByName
+
+	funcSelectPassword          func(ctx context.Context, username string) (s1 string, err error)
+	inspectFuncSelectPassword   func(ctx context.Context, username string)
+	afterSelectPasswordCounter  uint64
+	beforeSelectPasswordCounter uint64
+	SelectPasswordMock          mRepoMockSelectPassword
 
 	funcUpdate          func(ctx context.Context, user *model.Info) (err error)
 	inspectFuncUpdate   func(ctx context.Context, user *model.Info)
@@ -58,8 +70,14 @@ func NewRepoMock(t minimock.Tester) *RepoMock {
 	m.InsertMock = mRepoMockInsert{mock: m}
 	m.InsertMock.callArgs = []*RepoMockInsertParams{}
 
-	m.SelectMock = mRepoMockSelect{mock: m}
-	m.SelectMock.callArgs = []*RepoMockSelectParams{}
+	m.SelectByIDMock = mRepoMockSelectByID{mock: m}
+	m.SelectByIDMock.callArgs = []*RepoMockSelectByIDParams{}
+
+	m.SelectByNameMock = mRepoMockSelectByName{mock: m}
+	m.SelectByNameMock.callArgs = []*RepoMockSelectByNameParams{}
+
+	m.SelectPasswordMock = mRepoMockSelectPassword{mock: m}
+	m.SelectPasswordMock.callArgs = []*RepoMockSelectPasswordParams{}
 
 	m.UpdateMock = mRepoMockUpdate{mock: m}
 	m.UpdateMock.callArgs = []*RepoMockUpdateParams{}
@@ -502,220 +520,654 @@ func (m *RepoMock) MinimockInsertInspect() {
 	}
 }
 
-type mRepoMockSelect struct {
+type mRepoMockSelectByID struct {
 	mock               *RepoMock
-	defaultExpectation *RepoMockSelectExpectation
-	expectations       []*RepoMockSelectExpectation
+	defaultExpectation *RepoMockSelectByIDExpectation
+	expectations       []*RepoMockSelectByIDExpectation
 
-	callArgs []*RepoMockSelectParams
+	callArgs []*RepoMockSelectByIDParams
 	mutex    sync.RWMutex
 }
 
-// RepoMockSelectExpectation specifies expectation struct of the Repo.Select
-type RepoMockSelectExpectation struct {
+// RepoMockSelectByIDExpectation specifies expectation struct of the Repo.SelectByID
+type RepoMockSelectByIDExpectation struct {
 	mock    *RepoMock
-	params  *RepoMockSelectParams
-	results *RepoMockSelectResults
+	params  *RepoMockSelectByIDParams
+	results *RepoMockSelectByIDResults
 	Counter uint64
 }
 
-// RepoMockSelectParams contains parameters of the Repo.Select
-type RepoMockSelectParams struct {
+// RepoMockSelectByIDParams contains parameters of the Repo.SelectByID
+type RepoMockSelectByIDParams struct {
 	ctx context.Context
 	id  int64
 }
 
-// RepoMockSelectResults contains results of the Repo.Select
-type RepoMockSelectResults struct {
+// RepoMockSelectByIDResults contains results of the Repo.SelectByID
+type RepoMockSelectByIDResults struct {
 	up1 *model.User
 	err error
 }
 
-// Expect sets up expected params for Repo.Select
-func (mmSelect *mRepoMockSelect) Expect(ctx context.Context, id int64) *mRepoMockSelect {
-	if mmSelect.mock.funcSelect != nil {
-		mmSelect.mock.t.Fatalf("RepoMock.Select mock is already set by Set")
+// Expect sets up expected params for Repo.SelectByID
+func (mmSelectByID *mRepoMockSelectByID) Expect(ctx context.Context, id int64) *mRepoMockSelectByID {
+	if mmSelectByID.mock.funcSelectByID != nil {
+		mmSelectByID.mock.t.Fatalf("RepoMock.SelectByID mock is already set by Set")
 	}
 
-	if mmSelect.defaultExpectation == nil {
-		mmSelect.defaultExpectation = &RepoMockSelectExpectation{}
+	if mmSelectByID.defaultExpectation == nil {
+		mmSelectByID.defaultExpectation = &RepoMockSelectByIDExpectation{}
 	}
 
-	mmSelect.defaultExpectation.params = &RepoMockSelectParams{ctx, id}
-	for _, e := range mmSelect.expectations {
-		if minimock.Equal(e.params, mmSelect.defaultExpectation.params) {
-			mmSelect.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmSelect.defaultExpectation.params)
+	mmSelectByID.defaultExpectation.params = &RepoMockSelectByIDParams{ctx, id}
+	for _, e := range mmSelectByID.expectations {
+		if minimock.Equal(e.params, mmSelectByID.defaultExpectation.params) {
+			mmSelectByID.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmSelectByID.defaultExpectation.params)
 		}
 	}
 
-	return mmSelect
+	return mmSelectByID
 }
 
-// Inspect accepts an inspector function that has same arguments as the Repo.Select
-func (mmSelect *mRepoMockSelect) Inspect(f func(ctx context.Context, id int64)) *mRepoMockSelect {
-	if mmSelect.mock.inspectFuncSelect != nil {
-		mmSelect.mock.t.Fatalf("Inspect function is already set for RepoMock.Select")
+// Inspect accepts an inspector function that has same arguments as the Repo.SelectByID
+func (mmSelectByID *mRepoMockSelectByID) Inspect(f func(ctx context.Context, id int64)) *mRepoMockSelectByID {
+	if mmSelectByID.mock.inspectFuncSelectByID != nil {
+		mmSelectByID.mock.t.Fatalf("Inspect function is already set for RepoMock.SelectByID")
 	}
 
-	mmSelect.mock.inspectFuncSelect = f
+	mmSelectByID.mock.inspectFuncSelectByID = f
 
-	return mmSelect
+	return mmSelectByID
 }
 
-// Return sets up results that will be returned by Repo.Select
-func (mmSelect *mRepoMockSelect) Return(up1 *model.User, err error) *RepoMock {
-	if mmSelect.mock.funcSelect != nil {
-		mmSelect.mock.t.Fatalf("RepoMock.Select mock is already set by Set")
+// Return sets up results that will be returned by Repo.SelectByID
+func (mmSelectByID *mRepoMockSelectByID) Return(up1 *model.User, err error) *RepoMock {
+	if mmSelectByID.mock.funcSelectByID != nil {
+		mmSelectByID.mock.t.Fatalf("RepoMock.SelectByID mock is already set by Set")
 	}
 
-	if mmSelect.defaultExpectation == nil {
-		mmSelect.defaultExpectation = &RepoMockSelectExpectation{mock: mmSelect.mock}
+	if mmSelectByID.defaultExpectation == nil {
+		mmSelectByID.defaultExpectation = &RepoMockSelectByIDExpectation{mock: mmSelectByID.mock}
 	}
-	mmSelect.defaultExpectation.results = &RepoMockSelectResults{up1, err}
-	return mmSelect.mock
+	mmSelectByID.defaultExpectation.results = &RepoMockSelectByIDResults{up1, err}
+	return mmSelectByID.mock
 }
 
-// Set uses given function f to mock the Repo.Select method
-func (mmSelect *mRepoMockSelect) Set(f func(ctx context.Context, id int64) (up1 *model.User, err error)) *RepoMock {
-	if mmSelect.defaultExpectation != nil {
-		mmSelect.mock.t.Fatalf("Default expectation is already set for the Repo.Select method")
+// Set uses given function f to mock the Repo.SelectByID method
+func (mmSelectByID *mRepoMockSelectByID) Set(f func(ctx context.Context, id int64) (up1 *model.User, err error)) *RepoMock {
+	if mmSelectByID.defaultExpectation != nil {
+		mmSelectByID.mock.t.Fatalf("Default expectation is already set for the Repo.SelectByID method")
 	}
 
-	if len(mmSelect.expectations) > 0 {
-		mmSelect.mock.t.Fatalf("Some expectations are already set for the Repo.Select method")
+	if len(mmSelectByID.expectations) > 0 {
+		mmSelectByID.mock.t.Fatalf("Some expectations are already set for the Repo.SelectByID method")
 	}
 
-	mmSelect.mock.funcSelect = f
-	return mmSelect.mock
+	mmSelectByID.mock.funcSelectByID = f
+	return mmSelectByID.mock
 }
 
-// When sets expectation for the Repo.Select which will trigger the result defined by the following
+// When sets expectation for the Repo.SelectByID which will trigger the result defined by the following
 // Then helper
-func (mmSelect *mRepoMockSelect) When(ctx context.Context, id int64) *RepoMockSelectExpectation {
-	if mmSelect.mock.funcSelect != nil {
-		mmSelect.mock.t.Fatalf("RepoMock.Select mock is already set by Set")
+func (mmSelectByID *mRepoMockSelectByID) When(ctx context.Context, id int64) *RepoMockSelectByIDExpectation {
+	if mmSelectByID.mock.funcSelectByID != nil {
+		mmSelectByID.mock.t.Fatalf("RepoMock.SelectByID mock is already set by Set")
 	}
 
-	expectation := &RepoMockSelectExpectation{
-		mock:   mmSelect.mock,
-		params: &RepoMockSelectParams{ctx, id},
+	expectation := &RepoMockSelectByIDExpectation{
+		mock:   mmSelectByID.mock,
+		params: &RepoMockSelectByIDParams{ctx, id},
 	}
-	mmSelect.expectations = append(mmSelect.expectations, expectation)
+	mmSelectByID.expectations = append(mmSelectByID.expectations, expectation)
 	return expectation
 }
 
-// Then sets up Repo.Select return parameters for the expectation previously defined by the When method
-func (e *RepoMockSelectExpectation) Then(up1 *model.User, err error) *RepoMock {
-	e.results = &RepoMockSelectResults{up1, err}
+// Then sets up Repo.SelectByID return parameters for the expectation previously defined by the When method
+func (e *RepoMockSelectByIDExpectation) Then(up1 *model.User, err error) *RepoMock {
+	e.results = &RepoMockSelectByIDResults{up1, err}
 	return e.mock
 }
 
-// Select implements user.Repo
-func (mmSelect *RepoMock) Select(ctx context.Context, id int64) (up1 *model.User, err error) {
-	mm_atomic.AddUint64(&mmSelect.beforeSelectCounter, 1)
-	defer mm_atomic.AddUint64(&mmSelect.afterSelectCounter, 1)
+// SelectByID implements user.Repo
+func (mmSelectByID *RepoMock) SelectByID(ctx context.Context, id int64) (up1 *model.User, err error) {
+	mm_atomic.AddUint64(&mmSelectByID.beforeSelectByIDCounter, 1)
+	defer mm_atomic.AddUint64(&mmSelectByID.afterSelectByIDCounter, 1)
 
-	if mmSelect.inspectFuncSelect != nil {
-		mmSelect.inspectFuncSelect(ctx, id)
+	if mmSelectByID.inspectFuncSelectByID != nil {
+		mmSelectByID.inspectFuncSelectByID(ctx, id)
 	}
 
-	mm_params := RepoMockSelectParams{ctx, id}
+	mm_params := RepoMockSelectByIDParams{ctx, id}
 
 	// Record call args
-	mmSelect.SelectMock.mutex.Lock()
-	mmSelect.SelectMock.callArgs = append(mmSelect.SelectMock.callArgs, &mm_params)
-	mmSelect.SelectMock.mutex.Unlock()
+	mmSelectByID.SelectByIDMock.mutex.Lock()
+	mmSelectByID.SelectByIDMock.callArgs = append(mmSelectByID.SelectByIDMock.callArgs, &mm_params)
+	mmSelectByID.SelectByIDMock.mutex.Unlock()
 
-	for _, e := range mmSelect.SelectMock.expectations {
+	for _, e := range mmSelectByID.SelectByIDMock.expectations {
 		if minimock.Equal(*e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.up1, e.results.err
 		}
 	}
 
-	if mmSelect.SelectMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmSelect.SelectMock.defaultExpectation.Counter, 1)
-		mm_want := mmSelect.SelectMock.defaultExpectation.params
-		mm_got := RepoMockSelectParams{ctx, id}
+	if mmSelectByID.SelectByIDMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmSelectByID.SelectByIDMock.defaultExpectation.Counter, 1)
+		mm_want := mmSelectByID.SelectByIDMock.defaultExpectation.params
+		mm_got := RepoMockSelectByIDParams{ctx, id}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmSelect.t.Errorf("RepoMock.Select got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+			mmSelectByID.t.Errorf("RepoMock.SelectByID got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		mm_results := mmSelect.SelectMock.defaultExpectation.results
+		mm_results := mmSelectByID.SelectByIDMock.defaultExpectation.results
 		if mm_results == nil {
-			mmSelect.t.Fatal("No results are set for the RepoMock.Select")
+			mmSelectByID.t.Fatal("No results are set for the RepoMock.SelectByID")
 		}
 		return (*mm_results).up1, (*mm_results).err
 	}
-	if mmSelect.funcSelect != nil {
-		return mmSelect.funcSelect(ctx, id)
+	if mmSelectByID.funcSelectByID != nil {
+		return mmSelectByID.funcSelectByID(ctx, id)
 	}
-	mmSelect.t.Fatalf("Unexpected call to RepoMock.Select. %v %v", ctx, id)
+	mmSelectByID.t.Fatalf("Unexpected call to RepoMock.SelectByID. %v %v", ctx, id)
 	return
 }
 
-// SelectAfterCounter returns a count of finished RepoMock.Select invocations
-func (mmSelect *RepoMock) SelectAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmSelect.afterSelectCounter)
+// SelectByIDAfterCounter returns a count of finished RepoMock.SelectByID invocations
+func (mmSelectByID *RepoMock) SelectByIDAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmSelectByID.afterSelectByIDCounter)
 }
 
-// SelectBeforeCounter returns a count of RepoMock.Select invocations
-func (mmSelect *RepoMock) SelectBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmSelect.beforeSelectCounter)
+// SelectByIDBeforeCounter returns a count of RepoMock.SelectByID invocations
+func (mmSelectByID *RepoMock) SelectByIDBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmSelectByID.beforeSelectByIDCounter)
 }
 
-// Calls returns a list of arguments used in each call to RepoMock.Select.
+// Calls returns a list of arguments used in each call to RepoMock.SelectByID.
 // The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmSelect *mRepoMockSelect) Calls() []*RepoMockSelectParams {
-	mmSelect.mutex.RLock()
+func (mmSelectByID *mRepoMockSelectByID) Calls() []*RepoMockSelectByIDParams {
+	mmSelectByID.mutex.RLock()
 
-	argCopy := make([]*RepoMockSelectParams, len(mmSelect.callArgs))
-	copy(argCopy, mmSelect.callArgs)
+	argCopy := make([]*RepoMockSelectByIDParams, len(mmSelectByID.callArgs))
+	copy(argCopy, mmSelectByID.callArgs)
 
-	mmSelect.mutex.RUnlock()
+	mmSelectByID.mutex.RUnlock()
 
 	return argCopy
 }
 
-// MinimockSelectDone returns true if the count of the Select invocations corresponds
+// MinimockSelectByIDDone returns true if the count of the SelectByID invocations corresponds
 // the number of defined expectations
-func (m *RepoMock) MinimockSelectDone() bool {
-	for _, e := range m.SelectMock.expectations {
+func (m *RepoMock) MinimockSelectByIDDone() bool {
+	for _, e := range m.SelectByIDMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
 			return false
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.SelectMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectCounter) < 1 {
+	if m.SelectByIDMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectByIDCounter) < 1 {
 		return false
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcSelect != nil && mm_atomic.LoadUint64(&m.afterSelectCounter) < 1 {
+	if m.funcSelectByID != nil && mm_atomic.LoadUint64(&m.afterSelectByIDCounter) < 1 {
 		return false
 	}
 	return true
 }
 
-// MinimockSelectInspect logs each unmet expectation
-func (m *RepoMock) MinimockSelectInspect() {
-	for _, e := range m.SelectMock.expectations {
+// MinimockSelectByIDInspect logs each unmet expectation
+func (m *RepoMock) MinimockSelectByIDInspect() {
+	for _, e := range m.SelectByIDMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to RepoMock.Select with params: %#v", *e.params)
+			m.t.Errorf("Expected call to RepoMock.SelectByID with params: %#v", *e.params)
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.SelectMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectCounter) < 1 {
-		if m.SelectMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to RepoMock.Select")
+	if m.SelectByIDMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectByIDCounter) < 1 {
+		if m.SelectByIDMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RepoMock.SelectByID")
 		} else {
-			m.t.Errorf("Expected call to RepoMock.Select with params: %#v", *m.SelectMock.defaultExpectation.params)
+			m.t.Errorf("Expected call to RepoMock.SelectByID with params: %#v", *m.SelectByIDMock.defaultExpectation.params)
 		}
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcSelect != nil && mm_atomic.LoadUint64(&m.afterSelectCounter) < 1 {
-		m.t.Error("Expected call to RepoMock.Select")
+	if m.funcSelectByID != nil && mm_atomic.LoadUint64(&m.afterSelectByIDCounter) < 1 {
+		m.t.Error("Expected call to RepoMock.SelectByID")
+	}
+}
+
+type mRepoMockSelectByName struct {
+	mock               *RepoMock
+	defaultExpectation *RepoMockSelectByNameExpectation
+	expectations       []*RepoMockSelectByNameExpectation
+
+	callArgs []*RepoMockSelectByNameParams
+	mutex    sync.RWMutex
+}
+
+// RepoMockSelectByNameExpectation specifies expectation struct of the Repo.SelectByName
+type RepoMockSelectByNameExpectation struct {
+	mock    *RepoMock
+	params  *RepoMockSelectByNameParams
+	results *RepoMockSelectByNameResults
+	Counter uint64
+}
+
+// RepoMockSelectByNameParams contains parameters of the Repo.SelectByName
+type RepoMockSelectByNameParams struct {
+	ctx      context.Context
+	username string
+}
+
+// RepoMockSelectByNameResults contains results of the Repo.SelectByName
+type RepoMockSelectByNameResults struct {
+	up1 *model.User
+	err error
+}
+
+// Expect sets up expected params for Repo.SelectByName
+func (mmSelectByName *mRepoMockSelectByName) Expect(ctx context.Context, username string) *mRepoMockSelectByName {
+	if mmSelectByName.mock.funcSelectByName != nil {
+		mmSelectByName.mock.t.Fatalf("RepoMock.SelectByName mock is already set by Set")
+	}
+
+	if mmSelectByName.defaultExpectation == nil {
+		mmSelectByName.defaultExpectation = &RepoMockSelectByNameExpectation{}
+	}
+
+	mmSelectByName.defaultExpectation.params = &RepoMockSelectByNameParams{ctx, username}
+	for _, e := range mmSelectByName.expectations {
+		if minimock.Equal(e.params, mmSelectByName.defaultExpectation.params) {
+			mmSelectByName.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmSelectByName.defaultExpectation.params)
+		}
+	}
+
+	return mmSelectByName
+}
+
+// Inspect accepts an inspector function that has same arguments as the Repo.SelectByName
+func (mmSelectByName *mRepoMockSelectByName) Inspect(f func(ctx context.Context, username string)) *mRepoMockSelectByName {
+	if mmSelectByName.mock.inspectFuncSelectByName != nil {
+		mmSelectByName.mock.t.Fatalf("Inspect function is already set for RepoMock.SelectByName")
+	}
+
+	mmSelectByName.mock.inspectFuncSelectByName = f
+
+	return mmSelectByName
+}
+
+// Return sets up results that will be returned by Repo.SelectByName
+func (mmSelectByName *mRepoMockSelectByName) Return(up1 *model.User, err error) *RepoMock {
+	if mmSelectByName.mock.funcSelectByName != nil {
+		mmSelectByName.mock.t.Fatalf("RepoMock.SelectByName mock is already set by Set")
+	}
+
+	if mmSelectByName.defaultExpectation == nil {
+		mmSelectByName.defaultExpectation = &RepoMockSelectByNameExpectation{mock: mmSelectByName.mock}
+	}
+	mmSelectByName.defaultExpectation.results = &RepoMockSelectByNameResults{up1, err}
+	return mmSelectByName.mock
+}
+
+// Set uses given function f to mock the Repo.SelectByName method
+func (mmSelectByName *mRepoMockSelectByName) Set(f func(ctx context.Context, username string) (up1 *model.User, err error)) *RepoMock {
+	if mmSelectByName.defaultExpectation != nil {
+		mmSelectByName.mock.t.Fatalf("Default expectation is already set for the Repo.SelectByName method")
+	}
+
+	if len(mmSelectByName.expectations) > 0 {
+		mmSelectByName.mock.t.Fatalf("Some expectations are already set for the Repo.SelectByName method")
+	}
+
+	mmSelectByName.mock.funcSelectByName = f
+	return mmSelectByName.mock
+}
+
+// When sets expectation for the Repo.SelectByName which will trigger the result defined by the following
+// Then helper
+func (mmSelectByName *mRepoMockSelectByName) When(ctx context.Context, username string) *RepoMockSelectByNameExpectation {
+	if mmSelectByName.mock.funcSelectByName != nil {
+		mmSelectByName.mock.t.Fatalf("RepoMock.SelectByName mock is already set by Set")
+	}
+
+	expectation := &RepoMockSelectByNameExpectation{
+		mock:   mmSelectByName.mock,
+		params: &RepoMockSelectByNameParams{ctx, username},
+	}
+	mmSelectByName.expectations = append(mmSelectByName.expectations, expectation)
+	return expectation
+}
+
+// Then sets up Repo.SelectByName return parameters for the expectation previously defined by the When method
+func (e *RepoMockSelectByNameExpectation) Then(up1 *model.User, err error) *RepoMock {
+	e.results = &RepoMockSelectByNameResults{up1, err}
+	return e.mock
+}
+
+// SelectByName implements user.Repo
+func (mmSelectByName *RepoMock) SelectByName(ctx context.Context, username string) (up1 *model.User, err error) {
+	mm_atomic.AddUint64(&mmSelectByName.beforeSelectByNameCounter, 1)
+	defer mm_atomic.AddUint64(&mmSelectByName.afterSelectByNameCounter, 1)
+
+	if mmSelectByName.inspectFuncSelectByName != nil {
+		mmSelectByName.inspectFuncSelectByName(ctx, username)
+	}
+
+	mm_params := RepoMockSelectByNameParams{ctx, username}
+
+	// Record call args
+	mmSelectByName.SelectByNameMock.mutex.Lock()
+	mmSelectByName.SelectByNameMock.callArgs = append(mmSelectByName.SelectByNameMock.callArgs, &mm_params)
+	mmSelectByName.SelectByNameMock.mutex.Unlock()
+
+	for _, e := range mmSelectByName.SelectByNameMock.expectations {
+		if minimock.Equal(*e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.up1, e.results.err
+		}
+	}
+
+	if mmSelectByName.SelectByNameMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmSelectByName.SelectByNameMock.defaultExpectation.Counter, 1)
+		mm_want := mmSelectByName.SelectByNameMock.defaultExpectation.params
+		mm_got := RepoMockSelectByNameParams{ctx, username}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmSelectByName.t.Errorf("RepoMock.SelectByName got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmSelectByName.SelectByNameMock.defaultExpectation.results
+		if mm_results == nil {
+			mmSelectByName.t.Fatal("No results are set for the RepoMock.SelectByName")
+		}
+		return (*mm_results).up1, (*mm_results).err
+	}
+	if mmSelectByName.funcSelectByName != nil {
+		return mmSelectByName.funcSelectByName(ctx, username)
+	}
+	mmSelectByName.t.Fatalf("Unexpected call to RepoMock.SelectByName. %v %v", ctx, username)
+	return
+}
+
+// SelectByNameAfterCounter returns a count of finished RepoMock.SelectByName invocations
+func (mmSelectByName *RepoMock) SelectByNameAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmSelectByName.afterSelectByNameCounter)
+}
+
+// SelectByNameBeforeCounter returns a count of RepoMock.SelectByName invocations
+func (mmSelectByName *RepoMock) SelectByNameBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmSelectByName.beforeSelectByNameCounter)
+}
+
+// Calls returns a list of arguments used in each call to RepoMock.SelectByName.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmSelectByName *mRepoMockSelectByName) Calls() []*RepoMockSelectByNameParams {
+	mmSelectByName.mutex.RLock()
+
+	argCopy := make([]*RepoMockSelectByNameParams, len(mmSelectByName.callArgs))
+	copy(argCopy, mmSelectByName.callArgs)
+
+	mmSelectByName.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockSelectByNameDone returns true if the count of the SelectByName invocations corresponds
+// the number of defined expectations
+func (m *RepoMock) MinimockSelectByNameDone() bool {
+	for _, e := range m.SelectByNameMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.SelectByNameMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectByNameCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcSelectByName != nil && mm_atomic.LoadUint64(&m.afterSelectByNameCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockSelectByNameInspect logs each unmet expectation
+func (m *RepoMock) MinimockSelectByNameInspect() {
+	for _, e := range m.SelectByNameMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to RepoMock.SelectByName with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.SelectByNameMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectByNameCounter) < 1 {
+		if m.SelectByNameMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RepoMock.SelectByName")
+		} else {
+			m.t.Errorf("Expected call to RepoMock.SelectByName with params: %#v", *m.SelectByNameMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcSelectByName != nil && mm_atomic.LoadUint64(&m.afterSelectByNameCounter) < 1 {
+		m.t.Error("Expected call to RepoMock.SelectByName")
+	}
+}
+
+type mRepoMockSelectPassword struct {
+	mock               *RepoMock
+	defaultExpectation *RepoMockSelectPasswordExpectation
+	expectations       []*RepoMockSelectPasswordExpectation
+
+	callArgs []*RepoMockSelectPasswordParams
+	mutex    sync.RWMutex
+}
+
+// RepoMockSelectPasswordExpectation specifies expectation struct of the Repo.SelectPassword
+type RepoMockSelectPasswordExpectation struct {
+	mock    *RepoMock
+	params  *RepoMockSelectPasswordParams
+	results *RepoMockSelectPasswordResults
+	Counter uint64
+}
+
+// RepoMockSelectPasswordParams contains parameters of the Repo.SelectPassword
+type RepoMockSelectPasswordParams struct {
+	ctx      context.Context
+	username string
+}
+
+// RepoMockSelectPasswordResults contains results of the Repo.SelectPassword
+type RepoMockSelectPasswordResults struct {
+	s1  string
+	err error
+}
+
+// Expect sets up expected params for Repo.SelectPassword
+func (mmSelectPassword *mRepoMockSelectPassword) Expect(ctx context.Context, username string) *mRepoMockSelectPassword {
+	if mmSelectPassword.mock.funcSelectPassword != nil {
+		mmSelectPassword.mock.t.Fatalf("RepoMock.SelectPassword mock is already set by Set")
+	}
+
+	if mmSelectPassword.defaultExpectation == nil {
+		mmSelectPassword.defaultExpectation = &RepoMockSelectPasswordExpectation{}
+	}
+
+	mmSelectPassword.defaultExpectation.params = &RepoMockSelectPasswordParams{ctx, username}
+	for _, e := range mmSelectPassword.expectations {
+		if minimock.Equal(e.params, mmSelectPassword.defaultExpectation.params) {
+			mmSelectPassword.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmSelectPassword.defaultExpectation.params)
+		}
+	}
+
+	return mmSelectPassword
+}
+
+// Inspect accepts an inspector function that has same arguments as the Repo.SelectPassword
+func (mmSelectPassword *mRepoMockSelectPassword) Inspect(f func(ctx context.Context, username string)) *mRepoMockSelectPassword {
+	if mmSelectPassword.mock.inspectFuncSelectPassword != nil {
+		mmSelectPassword.mock.t.Fatalf("Inspect function is already set for RepoMock.SelectPassword")
+	}
+
+	mmSelectPassword.mock.inspectFuncSelectPassword = f
+
+	return mmSelectPassword
+}
+
+// Return sets up results that will be returned by Repo.SelectPassword
+func (mmSelectPassword *mRepoMockSelectPassword) Return(s1 string, err error) *RepoMock {
+	if mmSelectPassword.mock.funcSelectPassword != nil {
+		mmSelectPassword.mock.t.Fatalf("RepoMock.SelectPassword mock is already set by Set")
+	}
+
+	if mmSelectPassword.defaultExpectation == nil {
+		mmSelectPassword.defaultExpectation = &RepoMockSelectPasswordExpectation{mock: mmSelectPassword.mock}
+	}
+	mmSelectPassword.defaultExpectation.results = &RepoMockSelectPasswordResults{s1, err}
+	return mmSelectPassword.mock
+}
+
+// Set uses given function f to mock the Repo.SelectPassword method
+func (mmSelectPassword *mRepoMockSelectPassword) Set(f func(ctx context.Context, username string) (s1 string, err error)) *RepoMock {
+	if mmSelectPassword.defaultExpectation != nil {
+		mmSelectPassword.mock.t.Fatalf("Default expectation is already set for the Repo.SelectPassword method")
+	}
+
+	if len(mmSelectPassword.expectations) > 0 {
+		mmSelectPassword.mock.t.Fatalf("Some expectations are already set for the Repo.SelectPassword method")
+	}
+
+	mmSelectPassword.mock.funcSelectPassword = f
+	return mmSelectPassword.mock
+}
+
+// When sets expectation for the Repo.SelectPassword which will trigger the result defined by the following
+// Then helper
+func (mmSelectPassword *mRepoMockSelectPassword) When(ctx context.Context, username string) *RepoMockSelectPasswordExpectation {
+	if mmSelectPassword.mock.funcSelectPassword != nil {
+		mmSelectPassword.mock.t.Fatalf("RepoMock.SelectPassword mock is already set by Set")
+	}
+
+	expectation := &RepoMockSelectPasswordExpectation{
+		mock:   mmSelectPassword.mock,
+		params: &RepoMockSelectPasswordParams{ctx, username},
+	}
+	mmSelectPassword.expectations = append(mmSelectPassword.expectations, expectation)
+	return expectation
+}
+
+// Then sets up Repo.SelectPassword return parameters for the expectation previously defined by the When method
+func (e *RepoMockSelectPasswordExpectation) Then(s1 string, err error) *RepoMock {
+	e.results = &RepoMockSelectPasswordResults{s1, err}
+	return e.mock
+}
+
+// SelectPassword implements user.Repo
+func (mmSelectPassword *RepoMock) SelectPassword(ctx context.Context, username string) (s1 string, err error) {
+	mm_atomic.AddUint64(&mmSelectPassword.beforeSelectPasswordCounter, 1)
+	defer mm_atomic.AddUint64(&mmSelectPassword.afterSelectPasswordCounter, 1)
+
+	if mmSelectPassword.inspectFuncSelectPassword != nil {
+		mmSelectPassword.inspectFuncSelectPassword(ctx, username)
+	}
+
+	mm_params := RepoMockSelectPasswordParams{ctx, username}
+
+	// Record call args
+	mmSelectPassword.SelectPasswordMock.mutex.Lock()
+	mmSelectPassword.SelectPasswordMock.callArgs = append(mmSelectPassword.SelectPasswordMock.callArgs, &mm_params)
+	mmSelectPassword.SelectPasswordMock.mutex.Unlock()
+
+	for _, e := range mmSelectPassword.SelectPasswordMock.expectations {
+		if minimock.Equal(*e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.s1, e.results.err
+		}
+	}
+
+	if mmSelectPassword.SelectPasswordMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmSelectPassword.SelectPasswordMock.defaultExpectation.Counter, 1)
+		mm_want := mmSelectPassword.SelectPasswordMock.defaultExpectation.params
+		mm_got := RepoMockSelectPasswordParams{ctx, username}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmSelectPassword.t.Errorf("RepoMock.SelectPassword got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmSelectPassword.SelectPasswordMock.defaultExpectation.results
+		if mm_results == nil {
+			mmSelectPassword.t.Fatal("No results are set for the RepoMock.SelectPassword")
+		}
+		return (*mm_results).s1, (*mm_results).err
+	}
+	if mmSelectPassword.funcSelectPassword != nil {
+		return mmSelectPassword.funcSelectPassword(ctx, username)
+	}
+	mmSelectPassword.t.Fatalf("Unexpected call to RepoMock.SelectPassword. %v %v", ctx, username)
+	return
+}
+
+// SelectPasswordAfterCounter returns a count of finished RepoMock.SelectPassword invocations
+func (mmSelectPassword *RepoMock) SelectPasswordAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmSelectPassword.afterSelectPasswordCounter)
+}
+
+// SelectPasswordBeforeCounter returns a count of RepoMock.SelectPassword invocations
+func (mmSelectPassword *RepoMock) SelectPasswordBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmSelectPassword.beforeSelectPasswordCounter)
+}
+
+// Calls returns a list of arguments used in each call to RepoMock.SelectPassword.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmSelectPassword *mRepoMockSelectPassword) Calls() []*RepoMockSelectPasswordParams {
+	mmSelectPassword.mutex.RLock()
+
+	argCopy := make([]*RepoMockSelectPasswordParams, len(mmSelectPassword.callArgs))
+	copy(argCopy, mmSelectPassword.callArgs)
+
+	mmSelectPassword.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockSelectPasswordDone returns true if the count of the SelectPassword invocations corresponds
+// the number of defined expectations
+func (m *RepoMock) MinimockSelectPasswordDone() bool {
+	for _, e := range m.SelectPasswordMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.SelectPasswordMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectPasswordCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcSelectPassword != nil && mm_atomic.LoadUint64(&m.afterSelectPasswordCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockSelectPasswordInspect logs each unmet expectation
+func (m *RepoMock) MinimockSelectPasswordInspect() {
+	for _, e := range m.SelectPasswordMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to RepoMock.SelectPassword with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.SelectPasswordMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSelectPasswordCounter) < 1 {
+		if m.SelectPasswordMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RepoMock.SelectPassword")
+		} else {
+			m.t.Errorf("Expected call to RepoMock.SelectPassword with params: %#v", *m.SelectPasswordMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcSelectPassword != nil && mm_atomic.LoadUint64(&m.afterSelectPasswordCounter) < 1 {
+		m.t.Error("Expected call to RepoMock.SelectPassword")
 	}
 }
 
@@ -943,7 +1395,11 @@ func (m *RepoMock) MinimockFinish() {
 
 			m.MinimockInsertInspect()
 
-			m.MinimockSelectInspect()
+			m.MinimockSelectByIDInspect()
+
+			m.MinimockSelectByNameInspect()
+
+			m.MinimockSelectPasswordInspect()
 
 			m.MinimockUpdateInspect()
 			m.t.FailNow()
@@ -972,6 +1428,8 @@ func (m *RepoMock) minimockDone() bool {
 	return done &&
 		m.MinimockDeleteDone() &&
 		m.MinimockInsertDone() &&
-		m.MinimockSelectDone() &&
+		m.MinimockSelectByIDDone() &&
+		m.MinimockSelectByNameDone() &&
+		m.MinimockSelectPasswordDone() &&
 		m.MinimockUpdateDone()
 }

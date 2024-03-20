@@ -13,7 +13,7 @@ func (s *service) Get(ctx context.Context, id int64) (*desc.User, error) {
 		ctx,
 		func(ctx context.Context) error {
 			var errTx error
-			res, errTx = s.userRepo.Select(ctx, id)
+			res, errTx = s.userRepo.SelectByID(ctx, id)
 			if errTx != nil {
 				return errTx
 			}

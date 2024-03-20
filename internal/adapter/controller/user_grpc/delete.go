@@ -1,4 +1,4 @@
-package grpc
+package user_grpc
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 // Delete implements the DeleteUser method of the UserV1Server interface.
-func (s *Server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	err := s.userService.Delete(ctx, req.GetId())
 	if err != nil {
 		return nil, err

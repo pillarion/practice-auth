@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -18,8 +20,14 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/pillarion/practice-auth/internal/adapter/controller/interceptor"
-	desc "github.com/pillarion/practice-auth/pkg/user_v1"
+	pbaccess "github.com/pillarion/practice-auth/pkg/access_v1"
+	pbauth "github.com/pillarion/practice-auth/pkg/auth_v1"
+	pbuser "github.com/pillarion/practice-auth/pkg/user_v1"
 	closer "github.com/pillarion/practice-platform/pkg/closer"
+)
+
+const (
+	readHeaderTimeout = 10 * time.Second
 )
 
 // App is the main application struct.
@@ -69,14 +77,23 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
+	creds, err := credentials.NewServerTLSFromFile(
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key)
+	if err != nil {
+		log.Fatalf("failed to load TLS keys: %v", err)
+	}
+
 	a.grpcServer = grpc.NewServer(
-		grpc.Creds(insecure.NewCredentials()),
+		grpc.Creds(creds),
 		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
 	)
 
 	reflection.Register(a.grpcServer)
 
-	desc.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserServer(ctx))
+	pbuser.RegisterUserV1Server(a.grpcServer, a.serviceProvider.UserServer(ctx))
+	pbauth.RegisterAuthV1Server(a.grpcServer, a.serviceProvider.AuthServer(ctx))
+	pbaccess.RegisterAccessV1Server(a.grpcServer, a.serviceProvider.AccessServer(ctx))
 
 	return nil
 }
@@ -84,14 +101,21 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 func (a *App) initHTTPServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
 
+	creds, err := credentials.NewServerTLSFromFile(
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key)
+	if err != nil {
+		log.Fatalf("failed to load TLS keys: %v", err)
+	}
+
 	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(creds),
 	}
 
 	grpcAddr := fmt.Sprintf(":%d", a.serviceProvider.Config().GRPC.Port)
 	httpAddr := fmt.Sprintf(":%d", a.serviceProvider.Config().HTTP.Port)
 
-	err := desc.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, opts)
+	err = pbuser.RegisterUserV1HandlerFromEndpoint(ctx, mux, grpcAddr, opts)
 	if err != nil {
 		return err
 	}
@@ -103,14 +127,15 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	})
 
 	a.httpServer = &http.Server{
-		Addr:    httpAddr,
-		Handler: corsMiddleware.Handler(mux),
+		Addr:              httpAddr,
+		Handler:           corsMiddleware.Handler(mux),
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	return nil
 }
 
-func (a *App) initSwaggerServer(ctx context.Context) error {
+func (a *App) initSwaggerServer(_ context.Context) error {
 	statikFs, err := fs.New()
 	if err != nil {
 		return err
@@ -122,15 +147,16 @@ func (a *App) initSwaggerServer(ctx context.Context) error {
 	mux.HandleFunc("/api.swagger.json", serveSwaggerFile("/api.swagger.json"))
 
 	a.swaggerServer = &http.Server{
-		Addr:    addr,
-		Handler: mux,
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	return nil
 }
 
 func serveSwaggerFile(path string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		slog.Info("Serving swagger file", "path", path)
 
 		statikFs, err := fs.New()
@@ -242,7 +268,10 @@ func (a *App) runGRPCServer() error {
 func (a *App) runHTTPServer() error {
 	slog.Info("HTTP server is running", "ListenAddress", a.httpServer.Addr)
 
-	err := a.httpServer.ListenAndServe()
+	err := a.httpServer.ListenAndServeTLS(
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key,
+	)
 	if err != nil {
 		return err
 	}
@@ -253,7 +282,10 @@ func (a *App) runHTTPServer() error {
 func (a *App) runSwaggerServer() error {
 	slog.Info("Swagger server is running", "ListenAddress", a.swaggerServer.Addr)
 
-	err := a.swaggerServer.ListenAndServe()
+	err := a.swaggerServer.ListenAndServeTLS(
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
+		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key,
+	)
 	if err != nil {
 		return err
 	}
