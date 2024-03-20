@@ -26,6 +26,10 @@ import (
 	closer "github.com/pillarion/practice-platform/pkg/closer"
 )
 
+const (
+	readHeaderTimeout = 10 * time.Second
+)
+
 // App is the main application struct.
 type App struct {
 	serviceProvider *serviceProvider
@@ -125,7 +129,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	a.httpServer = &http.Server{
 		Addr:              httpAddr,
 		Handler:           corsMiddleware.Handler(mux),
-		ReadHeaderTimeout: time.Second * 10,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	return nil
@@ -145,7 +149,7 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 	a.swaggerServer = &http.Server{
 		Addr:              addr,
 		Handler:           mux,
-		ReadHeaderTimeout: time.Second * 10,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	return nil

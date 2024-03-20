@@ -8,12 +8,7 @@ import (
 
 // Get oldRefreshToken implements the GetoldRefreshToken method of the AuthV1Server interface.
 func (s *server) GetRefreshToken(ctx context.Context, req *desc.GetRefreshTokenRequest) (*desc.GetRefreshTokenResponse, error) {
-	oldRefreshToken, err := s.authService.GetRefreshToken(ctx, req.GetOldRefreshToken())
-	if err != nil {
-		return nil, err
-	}
-
-	newRefreshToken, err := s.authService.GetRefreshToken(ctx, oldRefreshToken)
+	newRefreshToken, err := s.authService.GetRefreshToken(ctx, req.GetOldRefreshToken())
 	if err != nil {
 		return nil, err
 	}
