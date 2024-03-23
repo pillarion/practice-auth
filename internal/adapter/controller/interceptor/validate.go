@@ -11,7 +11,7 @@ type validator interface {
 }
 
 // ValidateInterceptor intercepts gRPC requests and validates them.
-func ValidateInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func (i *Interceptor) ValidateInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	if val, ok := req.(validator); ok {
 		if err := val.Validate(); err != nil {
 			return nil, err

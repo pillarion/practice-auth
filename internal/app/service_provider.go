@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
 
 	grpcAccessController "github.com/pillarion/practice-auth/internal/adapter/controller/access_grpc"
 	grpcAuthController "github.com/pillarion/practice-auth/internal/adapter/controller/auth_grpc"
+	"github.com/pillarion/practice-auth/internal/adapter/controller/interceptor"
 	grpcUserController "github.com/pillarion/practice-auth/internal/adapter/controller/user_grpc"
 	configDriver "github.com/pillarion/practice-auth/internal/adapter/drivers/config/env"
 	pgAccessDriver "github.com/pillarion/practice-auth/internal/adapter/drivers/db/postgresql/access"
@@ -22,6 +22,7 @@ import (
 	accessService "github.com/pillarion/practice-auth/internal/core/service/access"
 	authService "github.com/pillarion/practice-auth/internal/core/service/auth"
 	userService "github.com/pillarion/practice-auth/internal/core/service/user"
+	"github.com/pillarion/practice-auth/internal/core/tools/logger"
 	grpcAccessPort "github.com/pillarion/practice-auth/pkg/access_v1"
 	grpcAuthPort "github.com/pillarion/practice-auth/pkg/auth_v1"
 	grpcUserPort "github.com/pillarion/practice-auth/pkg/user_v1"
@@ -50,6 +51,8 @@ type serviceProvider struct {
 	userServer   grpcUserPort.UserV1Server
 	authServer   grpcAuthPort.AuthV1Server
 	accessServer grpcAccessPort.AccessV1Server
+
+	interceptor *interceptor.Interceptor
 }
 
 func newServiceProvider() *serviceProvider {
@@ -60,7 +63,7 @@ func (s *serviceProvider) Config() *config.Config {
 	if s.config == nil {
 		cfg, err := configDriver.Get()
 		if err != nil {
-			log.Fatalf("failed to get config: %s", err.Error())
+			logger.FatalOnError("failed to get config", err)
 		}
 
 		s.config = cfg
@@ -81,7 +84,7 @@ func (s *serviceProvider) DBDriver(ctx context.Context) pgClient.DB {
 		)
 		db, err := pgClient.NewDB(ctx, dsn)
 		if err != nil {
-			log.Fatalf("failed to create db driver: %v", err)
+			logger.FatalOnError("failed to create db driver", err)
 		}
 
 		s.dbDriver = db
@@ -94,12 +97,12 @@ func (s *serviceProvider) DBClient(ctx context.Context) pgClient.Client {
 	if s.dbClient == nil {
 		cl, err := pgClient.New(s.DBDriver(ctx))
 		if err != nil {
-			log.Fatalf("failed to create db client: %v", err)
+			logger.FatalOnError("failed to create db client", err)
 		}
 
 		err = cl.DB().Ping(ctx)
 		if err != nil {
-			log.Fatalf("ping error: %s", err.Error())
+			logger.FatalOnError("failed to ping db", err)
 		}
 		closer.Add(cl.Close)
 
@@ -121,7 +124,7 @@ func (s *serviceProvider) UserRepository(ctx context.Context) userRepoPort.Repo 
 	if s.userRepository == nil {
 		repo, err := pgUserDriver.New(s.DBClient(ctx))
 		if err != nil {
-			log.Fatalf("failed to create user repository: %v", err)
+			logger.FatalOnError("failed to create user repository", err)
 		}
 
 		s.userRepository = repo
@@ -134,7 +137,7 @@ func (s *serviceProvider) AccessRepository(ctx context.Context) accessRepoPort.R
 	if s.accessRepository == nil {
 		repo, err := pgAccessDriver.New(s.DBClient(ctx))
 		if err != nil {
-			log.Fatalf("failed to create access repository: %v", err)
+			logger.FatalOnError("failed to create access repository", err)
 		}
 
 		s.accessRepository = repo
@@ -147,7 +150,7 @@ func (s *serviceProvider) JournalRepository(ctx context.Context) journalRepoPort
 	if s.journalRepository == nil {
 		repo, err := pgJournalDriver.New(s.DBClient(ctx))
 		if err != nil {
-			log.Fatalf("failed to create user repository: %v", err)
+			logger.FatalOnError("failed to create journal repository", err)
 		}
 
 		s.journalRepository = repo
@@ -229,4 +232,12 @@ func (s *serviceProvider) AuthServer(ctx context.Context) grpcAuthPort.AuthV1Ser
 	}
 
 	return s.authServer
+}
+
+func (s *serviceProvider) Interceptor(ctx context.Context) *interceptor.Interceptor {
+	if s.interceptor == nil {
+		s.interceptor = interceptor.NewInterceptor()
+	}
+
+	return s.interceptor
 }
