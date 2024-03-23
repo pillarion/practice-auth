@@ -15,6 +15,8 @@ import (
 // id - the user ID
 // *desc.User, error - returns a user and an error
 func (p *pg) SelectByID(ctx context.Context, id int64) (*desc.User, error) {
+	ctx, span := p.tracer.Start(ctx, "User.Select")
+	defer span.End()
 	builderSelect := sq.Select(
 		usersTableIDColumn,
 		usersTableNameColumn,
