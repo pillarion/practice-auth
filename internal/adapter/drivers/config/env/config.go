@@ -25,6 +25,9 @@ const (
 	jwtAccessDurationEnv  = "JWT_ACCESS_DURATION"
 	jwtRefreshDurationEnv = "JWT_REFRESH_DURATION"
 	jwtSecretEnv          = "JWT_SECRET"
+	metricsPortEnv        = "METRICS_PORT"
+	metricsNamespaceEnv   = "METRICS_NAMESPACE"
+	metricServiceNameEnv  = "METRIC_SERVICE_NAME"
 )
 
 // Get retrieves the configuration for the application.
@@ -131,6 +134,21 @@ func Get() (*ecfg.Config, error) {
 		return nil, err
 	}
 
+	metricsPort, err := getEnv(metricsPortEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	metricsPortInt, err := strconv.Atoi(metricsPort)
+	if err != nil {
+		return nil, err
+	}
+
+	metricsNamespace, err := getEnv(metricsNamespaceEnv)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ecfg.Config{
 		GRPC: ecfg.GRPC{
 			Port: grpcPortInt,
@@ -158,6 +176,10 @@ func Get() (*ecfg.Config, error) {
 			Secret:          jwtSecret,
 			AccessDuration:  jwtAccessDur,
 			RefreshDuration: jwtRefreshDur,
+		},
+		Metrics: ecfg.Metrics{
+			Port:      metricsPortInt,
+			Namespace: metricsNamespace,
 		},
 	}, nil
 }

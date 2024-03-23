@@ -10,6 +10,7 @@ type Config struct {
 	Swagger  Swagger  `yaml:"swagger"`
 	TLS      TLS      `yaml:"tls"`
 	JWT      JWT      `yaml:"jwt"`
+	Metrics  Metrics  `yaml:"metrics"`
 }
 
 // GRPC holds the configuration for the gRPC server.
@@ -49,4 +50,10 @@ type JWT struct {
 	Secret          string        `yaml:"secret"`
 	AccessDuration  time.Duration `yaml:"accessDuration"`
 	RefreshDuration time.Duration `yaml:"refreshDuration"`
+}
+
+type Metrics struct {
+	Port        int    `yaml:"port"`
+	Namespace   string `yaml:"namespace"`
+	ServiceName string `yaml:"serviceName"`
 }
