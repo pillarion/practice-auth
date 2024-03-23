@@ -1,7 +1,20 @@
 package interceptor
 
-type Interceptor struct{}
+import (
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
+)
 
-func NewInterceptor() *Interceptor {
-	return &Interceptor{}
+// Interceptor intercepts gRPC requests
+type Interceptor struct {
+	tracer trace.Tracer
+}
+
+// NewInterceptor returns new interceptor
+func NewInterceptor(tracename string) *Interceptor {
+	t := otel.Tracer(tracename)
+
+	return &Interceptor{
+		tracer: t,
+	}
 }

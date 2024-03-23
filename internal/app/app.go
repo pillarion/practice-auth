@@ -39,6 +39,7 @@ type App struct {
 	httpServer       *http.Server
 	swaggerServer    *http.Server
 	prometheusServer *http.Server
+	traceCloser      func(context.Context) error
 }
 
 // NewApp initializes a new App.
@@ -64,6 +65,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initSwaggerServer,
 		a.initLogger,
 		a.initMetrics,
+		a.initTracer,
 	}
 
 	for _, f := range inits {
@@ -83,20 +85,30 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initLogger(_ context.Context) error {
-	return logger.Init("practice-auth", "info")
+	return logger.Init(a.serviceProvider.Config().ServiceName, a.serviceProvider.Config().Log.Level)
 }
 
 func (a *App) initMetrics(ctx context.Context) error {
-	metric.Init(ctx, a.serviceProvider.Config().Metrics.Namespace, a.serviceProvider.Config().Metrics.ServiceName)
+	err := metric.Init(ctx, a.serviceProvider.Config().Metrics.Namespace, a.serviceProvider.Config().ServiceName)
+	if err != nil {
+		logger.FatalOnError("failed to init metrics", err)
+	}
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 
 	httpAddr := fmt.Sprintf(":%d", a.serviceProvider.Config().Metrics.Port)
 
 	a.prometheusServer = &http.Server{
-		Addr:    httpAddr,
-		Handler: mux,
+		Addr:              httpAddr,
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
+
+	return nil
+}
+
+func (a *App) initTracer(ctx context.Context) error {
+	a.traceCloser = a.serviceProvider.InitTraceProvider(ctx)
 
 	return nil
 }
@@ -112,9 +124,10 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(creds),
 		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(
-			a.serviceProvider.interceptor.ValidateInterceptor,
-			a.serviceProvider.interceptor.MetricsInterceptor,
-			a.serviceProvider.interceptor.LogInterceptor,
+			a.serviceProvider.Interceptor(ctx).ValidateInterceptor,
+			a.serviceProvider.Interceptor(ctx).MetricsInterceptor,
+			a.serviceProvider.Interceptor(ctx).TraceInterceptor,
+			a.serviceProvider.Interceptor(ctx).LogInterceptor,
 		)),
 	)
 
@@ -231,6 +244,10 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()
+		err := a.traceCloser(context.Background())
+		if err != nil {
+			logger.Warn().AnErr("error", err).Msg("failed to close trace exporter")
+		}
 		closer.Wait()
 	}()
 

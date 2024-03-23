@@ -62,10 +62,12 @@ func FatalOnError(msg string, err error) {
 	}
 }
 
+// Err logs error
 func Err(err error) *zerolog.Event {
 	return logger.Err(err)
 }
 
+// Printf prints formatted message
 func Printf(format string, v ...interface{}) {
 	logger.Info().Msgf(format, v...)
 }

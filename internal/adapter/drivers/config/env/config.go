@@ -10,24 +10,26 @@ import (
 )
 
 const (
-	rpcPortEnv            = "GRPC_PORT"
-	pgDBEnv               = "POSTGRES_DB"
-	pgUserEnv             = "POSTGRES_USER"
-	pgPassEnv             = "POSTGRES_PASSWORD"
-	pgHostEnv             = "POSTGRES_HOST"
-	pgPortEnv             = "POSTGRES_PORT"
-	httpPortEnv           = "HTTP_PORT"
-	swagerPortEnv         = "SWAGGER_PORT"
-	tlsCertEnv            = "TLS_CERT"
-	tlsKeyEnv             = "TLS_KEY"
-	tlsCAEnv              = "TLS_CA"
-	tlsPathEnv            = "TLS_PATH"
-	jwtAccessDurationEnv  = "JWT_ACCESS_DURATION"
-	jwtRefreshDurationEnv = "JWT_REFRESH_DURATION"
-	jwtSecretEnv          = "JWT_SECRET"
-	metricsPortEnv        = "METRICS_PORT"
-	metricsNamespaceEnv   = "METRICS_NAMESPACE"
-	metricServiceNameEnv  = "METRIC_SERVICE_NAME"
+	rpcPortEnv               = "GRPC_PORT"
+	pgDBEnv                  = "POSTGRES_DB"
+	pgUserEnv                = "POSTGRES_USER"
+	pgPassEnv                = "POSTGRES_PASSWORD"
+	pgHostEnv                = "POSTGRES_HOST"
+	pgPortEnv                = "POSTGRES_PORT"
+	httpPortEnv              = "HTTP_PORT"
+	swagerPortEnv            = "SWAGGER_PORT"
+	tlsCertEnv               = "TLS_CERT"
+	tlsKeyEnv                = "TLS_KEY"
+	tlsCAEnv                 = "TLS_CA"
+	tlsPathEnv               = "TLS_PATH"
+	jwtAccessDurationEnv     = "JWT_ACCESS_DURATION"
+	jwtRefreshDurationEnv    = "JWT_REFRESH_DURATION"
+	jwtSecretEnv             = "JWT_SECRET"
+	metricsPortEnv           = "METRICS_PORT"
+	metricsNamespaceEnv      = "METRICS_NAMESPACE"
+	serviceNameEnv           = "SERVICE_NAME"
+	traceCollectorAddressEnv = "TRACE_COLLECTOR_ADDRESS"
+	logLevelEnv              = "LOG_LEVEL"
 )
 
 // Get retrieves the configuration for the application.
@@ -149,7 +151,23 @@ func Get() (*ecfg.Config, error) {
 		return nil, err
 	}
 
+	serviceName, err := getEnv(serviceNameEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	traceCollectorAddress, err := getEnv(traceCollectorAddressEnv)
+	if err != nil {
+		return nil, err
+	}
+
+	logLevel, err := getEnv(logLevelEnv)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ecfg.Config{
+		ServiceName: serviceName,
 		GRPC: ecfg.GRPC{
 			Port: grpcPortInt,
 		},
@@ -180,6 +198,12 @@ func Get() (*ecfg.Config, error) {
 		Metrics: ecfg.Metrics{
 			Port:      metricsPortInt,
 			Namespace: metricsNamespace,
+		},
+		Trace: ecfg.Trace{
+			CollectorAddress: traceCollectorAddress,
+		},
+		Log: ecfg.Log{
+			Level: logLevel,
 		},
 	}, nil
 }

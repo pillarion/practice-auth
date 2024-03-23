@@ -9,6 +9,7 @@ import (
 	"github.com/pillarion/practice-auth/internal/core/tools/metric"
 )
 
+// MetricsInterceptor intercepts gRPC requests and logs them.
 func (i *Interceptor) MetricsInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	metric.IncRequestCounter()
 
