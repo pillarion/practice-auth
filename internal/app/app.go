@@ -4,22 +4,24 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 
-	"golang.org/x/exp/slog"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 
-	"github.com/pillarion/practice-auth/internal/adapter/controller/interceptor"
+	"github.com/pillarion/practice-auth/internal/core/tools/logger"
+	"github.com/pillarion/practice-auth/internal/core/tools/metric"
 	pbaccess "github.com/pillarion/practice-auth/pkg/access_v1"
 	pbauth "github.com/pillarion/practice-auth/pkg/auth_v1"
 	pbuser "github.com/pillarion/practice-auth/pkg/user_v1"
@@ -32,10 +34,12 @@ const (
 
 // App is the main application struct.
 type App struct {
-	serviceProvider *serviceProvider
-	grpcServer      *grpc.Server
-	httpServer      *http.Server
-	swaggerServer   *http.Server
+	serviceProvider  *serviceProvider
+	grpcServer       *grpc.Server
+	httpServer       *http.Server
+	swaggerServer    *http.Server
+	prometheusServer *http.Server
+	traceCloser      func(context.Context) error
 }
 
 // NewApp initializes a new App.
@@ -52,12 +56,16 @@ func NewApp(ctx context.Context) (*App, error) {
 
 	return a, nil
 }
+
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initServiceProvider,
 		a.initGRPCServer,
 		a.initHTTPServer,
 		a.initSwaggerServer,
+		a.initLogger,
+		a.initMetrics,
+		a.initTracer,
 	}
 
 	for _, f := range inits {
@@ -76,17 +84,51 @@ func (a *App) initServiceProvider(_ context.Context) error {
 	return nil
 }
 
+func (a *App) initLogger(_ context.Context) error {
+	return logger.Init(a.serviceProvider.Config().ServiceName, a.serviceProvider.Config().Log.Level)
+}
+
+func (a *App) initMetrics(ctx context.Context) error {
+	err := metric.Init(ctx, a.serviceProvider.Config().Metrics.Namespace, a.serviceProvider.Config().ServiceName)
+	if err != nil {
+		logger.FatalOnError("failed to init metrics", err)
+	}
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	httpAddr := fmt.Sprintf(":%d", a.serviceProvider.Config().Metrics.Port)
+
+	a.prometheusServer = &http.Server{
+		Addr:              httpAddr,
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
+	}
+
+	return nil
+}
+
+func (a *App) initTracer(ctx context.Context) error {
+	a.traceCloser = a.serviceProvider.InitTraceProvider(ctx)
+
+	return nil
+}
+
 func (a *App) initGRPCServer(ctx context.Context) error {
 	creds, err := credentials.NewServerTLSFromFile(
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key)
 	if err != nil {
-		log.Fatalf("failed to load TLS keys: %v", err)
+		logger.FatalOnError("failed to load TLS keys", err)
 	}
 
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(creds),
-		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(
+			a.serviceProvider.Interceptor(ctx).ValidateInterceptor,
+			a.serviceProvider.Interceptor(ctx).MetricsInterceptor,
+			a.serviceProvider.Interceptor(ctx).TraceInterceptor,
+			a.serviceProvider.Interceptor(ctx).LogInterceptor,
+		)),
 	)
 
 	reflection.Register(a.grpcServer)
@@ -105,7 +147,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key)
 	if err != nil {
-		log.Fatalf("failed to load TLS keys: %v", err)
+		logger.FatalOnError("failed to load TLS keys", err)
 	}
 
 	opts := []grpc.DialOption{
@@ -157,7 +199,7 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 
 func serveSwaggerFile(path string) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
-		slog.Info("Serving swagger file", "path", path)
+		logger.Debug().Str("path", path).Msg("Serving swagger file")
 
 		statikFs, err := fs.New()
 		if err != nil {
@@ -165,7 +207,7 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Open swagger file", "path", path)
+		logger.Debug().Str("path", path).Msg("Open swagger file")
 
 		file, err := statikFs.Open(path)
 		if err != nil {
@@ -174,7 +216,7 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 		}
 		defer file.Close()
 
-		slog.Info("Read swagger file", "path", path)
+		logger.Debug().Str("path", path).Msg("Read swagger file")
 
 		content, err := io.ReadAll(file)
 		if err != nil {
@@ -182,7 +224,7 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Write swagger file", "path", path)
+		logger.Debug().Str("path", path).Msg("Write swagger file")
 
 		w.Header().Set("Content-Type", "application/json")
 		_, err = w.Write(content)
@@ -191,7 +233,7 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Finish serving swagger file", "path", path)
+		logger.Debug().Str("path", path).Msg("Finish serving swagger file")
 	}
 }
 
@@ -202,11 +244,15 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()
+		err := a.traceCloser(context.Background())
+		if err != nil {
+			logger.Warn().AnErr("error", err).Msg("failed to close trace exporter")
+		}
 		closer.Wait()
 	}()
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() error {
 		defer wg.Done()
@@ -216,7 +262,7 @@ func (a *App) Run() error {
 			return fmt.Errorf("failed to run GRPC server: %v", err)
 		}
 
-		slog.Info("GRPC server is stopped")
+		logger.Info().Msg("GRPC server is stopped")
 		return nil
 	}()
 
@@ -228,7 +274,7 @@ func (a *App) Run() error {
 			return fmt.Errorf("failed to run HTTP server: %v", err)
 		}
 
-		slog.Info("HTTP server is stopped")
+		logger.Info().Msg("HTTP server is stopped")
 		return nil
 	}()
 
@@ -240,7 +286,19 @@ func (a *App) Run() error {
 			return fmt.Errorf("failed to run Swagger server: %v", err)
 		}
 
-		slog.Info("Swagger server is stopped")
+		logger.Info().Msg("Swagger server is stopped")
+		return nil
+	}()
+
+	go func() error {
+		defer wg.Done()
+
+		err := a.runPrometheusServer()
+		if err != nil {
+			return fmt.Errorf("failed to run Prometheus server: %v", err)
+		}
+
+		logger.Info().Msg("Prometheus server is stopped")
 		return nil
 	}()
 
@@ -255,7 +313,7 @@ func (a *App) runGRPCServer() error {
 	if err != nil {
 		return err
 	}
-	slog.Info("GRPC server is running", "ListenAddress", lAddress)
+	logger.Info().Str("address", lAddress).Msg("GRPC server is running")
 
 	err = a.grpcServer.Serve(list)
 	if err != nil {
@@ -266,7 +324,7 @@ func (a *App) runGRPCServer() error {
 }
 
 func (a *App) runHTTPServer() error {
-	slog.Info("HTTP server is running", "ListenAddress", a.httpServer.Addr)
+	logger.Info().Str("address", a.httpServer.Addr).Msg("HTTP server is running")
 
 	err := a.httpServer.ListenAndServeTLS(
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
@@ -280,12 +338,23 @@ func (a *App) runHTTPServer() error {
 }
 
 func (a *App) runSwaggerServer() error {
-	slog.Info("Swagger server is running", "ListenAddress", a.swaggerServer.Addr)
+	logger.Info().Str("address", a.swaggerServer.Addr).Msg("Swagger server is running")
 
 	err := a.swaggerServer.ListenAndServeTLS(
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Cert,
 		a.serviceProvider.config.TLS.Path+a.serviceProvider.Config().TLS.Key,
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) runPrometheusServer() error {
+	logger.Info().Str("address", a.prometheusServer.Addr).Msg("Prometheus server is running")
+
+	err := a.prometheusServer.ListenAndServe()
 	if err != nil {
 		return err
 	}

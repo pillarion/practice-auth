@@ -3,7 +3,6 @@ package access
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"strings"
 
 	modelAccess "github.com/pillarion/practice-auth/internal/core/model/access"
@@ -36,7 +35,6 @@ func (s *service) Check(ctx context.Context, endpoint string) error {
 		return err
 	}
 
-	slog.Info("Check", "endpoint", endpoint)
 	var matrix []modelAccess.Access
 	err = s.txManager.ReadCommitted(
 		ctx,

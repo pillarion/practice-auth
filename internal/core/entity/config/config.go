@@ -4,12 +4,16 @@ import "time"
 
 // Config holds the configuration for the application.
 type Config struct {
-	GRPC     GRPC     `yaml:"grpc"`
-	Database Database `yaml:"database"`
-	HTTP     HTTP     `yaml:"http"`
-	Swagger  Swagger  `yaml:"swagger"`
-	TLS      TLS      `yaml:"tls"`
-	JWT      JWT      `yaml:"jwt"`
+	ServiceName string   `yaml:"serviceName"`
+	GRPC        GRPC     `yaml:"grpc"`
+	Database    Database `yaml:"database"`
+	HTTP        HTTP     `yaml:"http"`
+	Swagger     Swagger  `yaml:"swagger"`
+	TLS         TLS      `yaml:"tls"`
+	JWT         JWT      `yaml:"jwt"`
+	Metrics     Metrics  `yaml:"metrics"`
+	Trace       Trace    `yaml:"trace"`
+	Log         Log      `yaml:"log"`
 }
 
 // GRPC holds the configuration for the gRPC server.
@@ -49,4 +53,18 @@ type JWT struct {
 	Secret          string        `yaml:"secret"`
 	AccessDuration  time.Duration `yaml:"accessDuration"`
 	RefreshDuration time.Duration `yaml:"refreshDuration"`
+}
+
+// Metrics holds the configuration for the metrics.
+type Metrics struct {
+	Port      int    `yaml:"port"`
+	Namespace string `yaml:"namespace"`
+}
+
+type Trace struct {
+	CollectorAddress string `yaml:"collectorAddress"`
+}
+
+type Log struct {
+	Level string `yaml:"level"`
 }

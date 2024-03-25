@@ -17,6 +17,14 @@ install-deps:
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	go get -u "go.opentelemetry.io/otel" \
+    "go.opentelemetry.io/otel/exporters/stdout/stdoutmetric" \
+    "go.opentelemetry.io/otel/exporters/stdout/stdouttrace" \
+    "go.opentelemetry.io/otel/propagation" \
+    "go.opentelemetry.io/otel/sdk/metric" \
+    "go.opentelemetry.io/otel/sdk/resource" \
+    "go.opentelemetry.io/otel/sdk/trace" \
+    "go.opentelemetry.io/otel/semconv/v1.24.0"
 
 lint:
 	GOBIN=$(LOCAL_BIN) golangci-lint run ./... --config .golangci.pipeline.yaml
@@ -113,3 +121,24 @@ gen-service-cert:
 	openssl x509 -req -sha256 -days 365 -in test/certs/service.csr -CA test/certs/ca.crt -CAkey test/certs/ca.key -CAcreateserial -out test/certs/service.crt -extfile config/certificate.conf -extensions req_ext
 
 gen-certs: gen-ca-cert gen-service-cert
+
+gnz-install:
+	go install github.com/bojand/ghz/cmd/ghz@latest
+
+grpc-load-test:
+	ghz \
+		--call user_v1.UserV1.Get \
+		--data '{"id": 1}' \
+		--rps 100 \
+		--total 3000 \
+		--skipTLS \
+		localhost:50051
+
+grpc-error-load-test:
+	ghz \
+		--call user_v1.UserV1.Get \
+		--data '{"id": 110}' \
+		--rps 100 \
+		--total 3000 \
+		--skipTLS \
+		localhost:50051
