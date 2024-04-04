@@ -2,9 +2,9 @@ name: Go
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 env:
   REGISTRY: "cr.selcloud.ru/practice"
@@ -13,21 +13,20 @@ env:
   REGISTRY_USER: "token"
   GRPC_PORT: "50051"
 
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v3
-        - name: Set up Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: '1.22'
-            cache-dependency-path: go.sum
-        - name: Build
-          run: go build -o ./bin/ -v ./...
-        - name: Test
-          run: go test -v ./...
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
+          cache-dependency-path: go.sum
+      - name: Build
+        run: go build -o ./bin/ -v ./...
+      - name: Test
+        run: go test -v ./...
 
   linter:
     name: lint
@@ -36,7 +35,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.22'
+          go-version: "1.22"
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
@@ -79,10 +78,10 @@ jobs:
           export TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker buildx create --use
           docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
-#      - name: Build and Push Docker Image Migrator
-#        run: |
-#          docker buildx create --use
-#          docker buildx build --no-cache --push --tag $REGISTRY/migrator:latest -f Dockerfile.Migrator . 
+  #      - name: Build and Push Docker Image Migrator
+  #        run: |
+  #          docker buildx create --use
+  #          docker buildx build --no-cache --push --tag $REGISTRY/migrator:latest -f Dockerfile.Migrator .
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -90,14 +89,14 @@ jobs:
     steps:
       - name: Checkout main
         uses: actions/checkout@v3
-#      - name: Copy docker-compose.yaml
-#        uses: appleboy/scp-action@v0.1.7
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          source: "docker-compose.yaml"
-#          target: .
+      #      - name: Copy docker-compose.yaml
+      #        uses: appleboy/scp-action@v0.1.7
+      #        with:
+      #          host: ${{ secrets.SERVER_HOST }}
+      #          username: ${{ secrets.SSH_USERNAME }}
+      #          key: ${{ secrets.SSH_KEY }}
+      #          source: "docker-compose.yaml"
+      #          target: .
       - name: Copy migrations
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -114,7 +113,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,REGISTRY_USER,GRPC_PORT
           script: |
-            
+
             # Set up variables
             echo "" > .env
             export TAG_NAME=$(echo $GITHUB_SHA | head -c7)
@@ -129,8 +128,8 @@ jobs:
 
             # Login into Selectel Registry
             sudo docker login -u $REGISTRY_USER -p ${{ secrets.SEL_CR_PASS }} $REGISTRY
-            
+
             # Stop running container
             sudo docker compose down auth
-            
+
             sudo docker compose up -d auth auth-migrator
