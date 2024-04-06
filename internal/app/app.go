@@ -20,12 +20,13 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 
-	"github.com/pillarion/practice-auth/internal/core/tools/logger"
-	"github.com/pillarion/practice-auth/internal/core/tools/metric"
 	pbaccess "github.com/pillarion/practice-auth/pkg/access_v1"
 	pbauth "github.com/pillarion/practice-auth/pkg/auth_v1"
 	pbuser "github.com/pillarion/practice-auth/pkg/user_v1"
-	closer "github.com/pillarion/practice-platform/pkg/closer"
+
+	"github.com/pillarion/practice-platform/pkg/closer"
+	"github.com/pillarion/practice-platform/pkg/logger"
+	"github.com/pillarion/practice-platform/pkg/metric"
 )
 
 const (
@@ -124,6 +125,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(creds),
 		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(
+			a.serviceProvider.Interceptor(ctx).RateLimiter,
 			a.serviceProvider.Interceptor(ctx).ValidateInterceptor,
 			a.serviceProvider.Interceptor(ctx).MetricsInterceptor,
 			a.serviceProvider.Interceptor(ctx).TraceInterceptor,

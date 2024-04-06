@@ -22,14 +22,16 @@ import (
 	accessService "github.com/pillarion/practice-auth/internal/core/service/access"
 	authService "github.com/pillarion/practice-auth/internal/core/service/auth"
 	userService "github.com/pillarion/practice-auth/internal/core/service/user"
-	"github.com/pillarion/practice-auth/internal/core/tools/logger"
-	"github.com/pillarion/practice-auth/internal/core/tools/tracer"
 	grpcAccessPort "github.com/pillarion/practice-auth/pkg/access_v1"
 	grpcAuthPort "github.com/pillarion/practice-auth/pkg/auth_v1"
 	grpcUserPort "github.com/pillarion/practice-auth/pkg/user_v1"
-	closer "github.com/pillarion/practice-platform/pkg/closer"
+
+	"github.com/pillarion/practice-platform/pkg/closer"
 	pgClient "github.com/pillarion/practice-platform/pkg/dbclient"
+	"github.com/pillarion/practice-platform/pkg/logger"
 	txManager "github.com/pillarion/practice-platform/pkg/pgtxmanager"
+	"github.com/pillarion/practice-platform/pkg/tracer"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 

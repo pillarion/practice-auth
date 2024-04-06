@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/pillarion/practice-auth/internal/core/tools/metric"
+	"github.com/pillarion/practice-platform/pkg/metric"
 )
 
 // MetricsInterceptor intercepts gRPC requests and logs them.

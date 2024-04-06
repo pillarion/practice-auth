@@ -20,6 +20,12 @@ INSERT INTO access_matrix (role, endpoint) VALUES
     ('USER', '/auth_v1.AuthV1/GetRefreshToken'),
     ('USER', '/access_v1.AccessV1/Check');
     ('UNKNOWN', '/user_v1.UserV1/Create'),
+    ('USER', '/chat_v1.ChatV1/Create');
+    ('USER', '/chat_v1.ChatV1/SendMessage');
+    ('USER', '/chat_v1.ChatV1/Delete');
+    ('ADMIN', '/chat_v1.ChatV1/Create');
+    ('ADMIN', '/chat_v1.ChatV1/SendMessage');
+    ('ADMIN', '/chat_v1.ChatV1/Delete');
 
 -- +goose StatementEnd
 

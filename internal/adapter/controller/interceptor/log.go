@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/pillarion/practice-auth/internal/core/tools/logger"
+	"github.com/pillarion/practice-platform/pkg/logger"
 	"google.golang.org/grpc"
 )
 
